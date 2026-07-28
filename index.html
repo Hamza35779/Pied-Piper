@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pied Piper — Next-Gen AI & DePIN Middle-Out Compression</title>
+  <meta name="description" content="Pied Piper platform powered by Middle-Out AI Compression, DePIN P2P storage network, lossless media playback, and universal SDK integration.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Top Live Network Ticker -->
+  <div id="top-ticker" class="ticker-bar">
+    <div class="ticker-content">
+      <span class="ticker-item"><strong class="pulse-dot">●</strong> PIPERNET DEPIN STATUS: <span class="accent-green">ONLINE</span></span>
+      <span class="ticker-item">ACTIVE NODES: <strong id="ticker-nodes">14,892</strong></span>
+      <span class="ticker-item">TOTAL STORAGE: <strong id="ticker-storage">84.2 PB</strong></span>
+      <span class="ticker-item">WEISSMAN SCORE (AVG): <strong id="ticker-weissman" class="accent-green">5.28 W</strong></span>
+      <span class="ticker-item">HOOLI NUCLEUS COMPRESSION LATENCY: <span class="accent-red">+420ms (LAGGING)</span></span>
+      <span class="ticker-item">BANDWIDTH SAVED: <strong id="ticker-saved">1.4 TB/s</strong></span>
+    </div>
+  </div>
+
+  <!-- Header & Navigation -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="brand-logo" id="logo-btn">
+        <img src="logo.svg" alt="Pied Piper Logo" class="official-brand-logo">
+        <div class="brand-text">
+          <span class="brand-title">PIED PIPER <span class="v-badge">AI v4.2</span></span>
+          <span class="brand-sub">MIDDLE-OUT COMPRESSION & DEPIN</span>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <button class="nav-btn active" data-tab="tab-middle-out">
+          <span class="nav-icon">⚡</span> Middle-Out AI
+        </button>
+        <button class="nav-btn" data-tab="tab-depin">
+          <span class="nav-icon">🌐</span> PiperNet DePIN
+        </button>
+        <button class="nav-btn" data-tab="tab-weissman">
+          <span class="nav-icon">📊</span> Weissman Arena
+        </button>
+        <button class="nav-btn" data-tab="tab-studio">
+          <span class="nav-icon">📁</span> File Studio
+        </button>
+        <button class="nav-btn" data-tab="tab-sdk">
+          <span class="nav-icon">🔌</span> SDK & Integrations
+        </button>
+        <button class="nav-btn" data-tab="tab-team">
+          <span class="nav-icon">🚀</span> Incubator
+        </button>
+        <button class="nav-btn" data-tab="tab-terminal">
+          <span class="nav-icon">💻</span> Terminal
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <button id="sound-toggle" class="icon-btn" title="Toggle Sci-Fi Sound FX">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <button id="cta-compress" class="btn-primary">
+          <span>Compress Data</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- TAB 1: MIDDLE-OUT AI COMPRESSION ENGINE -->
+    <section id="tab-middle-out" class="tab-content active">
+      <div class="hero-section">
+        <h1 class="hero-title">Middle-Out <span class="gradient-text">Neural Compression</span></h1>
+        <p class="hero-desc">
+          Compressing raw data, AI token prompts, images, and binary streams simultaneously from both ends towards the middle. Achieving unprecedented Weissman Scores ($W > 5.2$) with zero quality loss.
+        </p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Input & Controls -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">📥</span> Data Payload Input</h3>
+            <div class="preset-buttons">
+              <button class="preset-btn" data-sample="json">Sample JSON</button>
+              <button class="preset-btn" data-sample="code">JS Code</button>
+              <button class="preset-btn" data-sample="ai">AI Prompt</button>
+              <button class="preset-btn" data-sample="hooli">Hooli Secret</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <textarea id="mo-input-text" class="code-input" placeholder="Paste or type text, JSON, code, or AI prompt here to test Middle-Out compression..."></textarea>
+            
+            <div class="options-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="chk-neural" checked>
+                <span>Enable AI Neural Token Optimizer</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="chk-bidirectional" checked>
+                <span>Bi-Directional Expansion</span>
+              </label>
+            </div>
+
+            <div class="action-bar">
+              <button id="btn-run-mo" class="btn-glow">
+                <span class="glow-symbol">⚡</span> RUN MIDDLE-OUT COMPRESSION
+              </button>
+              <button id="btn-reset-mo" class="btn-secondary">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compression Results & Visualizer -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">⚡</span> Middle-Out Compression Visualizer</h3>
+            <span id="mo-status-badge" class="badge badge-idle">Ready</span>
+          </div>
+          <div class="card-body">
+            <!-- Canvas Visualizer for bi-directional compression tree -->
+            <div class="canvas-container">
+              <canvas id="mo-tree-canvas" width="600" height="200"></canvas>
+              <div id="mo-tree-overlay" class="canvas-overlay-text">Click 'Run Middle-Out Compression' to see live bi-directional tree execution</div>
+            </div>
+
+            <!-- Compression Metrics Cards -->
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <span class="metric-label">Original Size</span>
+                <span id="m-orig-size" class="metric-val">0 B</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Compressed Size</span>
+                <span id="m-comp-size" class="metric-val accent-green">0 B</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Space Saved</span>
+                <span id="m-savings" class="metric-val accent-blue">0.0%</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Weissman Score</span>
+                <span id="m-weissman" class="metric-val accent-purple">0.00 W</span>
+              </div>
+            </div>
+
+            <!-- Compressed Output Inspector -->
+            <div class="output-block">
+              <div class="output-header">
+                <span>Compressed Middle-Out Stream (.pp payload)</span>
+                <button id="btn-copy-mo" class="btn-mini">Copy Stream</button>
+              </div>
+              <pre id="mo-output-stream" class="code-preview">// Compressed bytes will appear here...</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PIPERNET DEPIN NETWORK VISUALIZER -->
+    <section id="tab-depin" class="tab-content">
+      <div class="section-header">
+        <h2>PiperNet <span class="gradient-text">DePIN P2P Network</span></h2>
+        <p>Decentralized Physical Infrastructure Network distributing middle-out storage and GPU compute nodes globally.</p>
+      </div>
+
+      <div class="grid-layout-depin">
+        <!-- Interactive Canvas Node Graph -->
+        <div class="glass-card span-2">
+          <div class="card-header">
+            <h3><span class="card-icon">🕸️</span> Global Node Topography & Packet Streams</h3>
+            <div class="depin-controls">
+              <button id="btn-add-node" class="btn-mini">+ Add Node</button>
+              <button id="btn-ping-all" class="btn-mini">Pulse Ping</button>
+              <button id="btn-clear-nodes" class="btn-mini">Reset Topo</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="depin-canvas-wrapper">
+              <canvas id="depin-canvas" width="900" height="420"></canvas>
+              <div class="canvas-legend">
+                <span class="leg-item"><span class="dot dot-master"></span> Seed Node (Pied Piper Core)</span>
+                <span class="leg-item"><span class="dot dot-gpu"></span> GPU Compute Node</span>
+                <span class="leg-item"><span class="dot dot-storage"></span> Storage Node</span>
+                <span class="leg-item"><span class="dot dot-peer"></span> Mobile/Edge Peer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Node Control & Stats -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">⚡</span> Network Orchestrator</h3>
+          </div>
+          <div class="card-body">
+            <div class="stat-list">
+              <div class="stat-item">
+                <span>Network Health</span>
+                <strong class="accent-green">100% Optimal</strong>
+              </div>
+              <div class="stat-item">
+                <span>Proof of Replication</span>
+                <strong id="depin-por">99.98% Passed</strong>
+              </div>
+              <div class="stat-item">
+                <span>Avg Peer Latency</span>
+                <strong id="depin-latency">14 ms</strong>
+              </div>
+              <div class="stat-item">
+                <span>P2P GPU Capacity</span>
+                <strong id="depin-gpu">42,100 TFLOPS</strong>
+              </div>
+            </div>
+
+            <div class="slider-group">
+              <label>Simulated Traffic Load: <span id="lbl-traffic">50%</span></label>
+              <input type="range" id="slider-traffic" min="10" max="100" value="50">
+            </div>
+
+            <div class="slider-group">
+              <label>Compute Allocation: <span id="lbl-compute">GPU + Storage</span></label>
+              <input type="range" id="slider-compute" min="1" max="3" value="2">
+            </div>
+
+            <div class="terminal-log-mini" id="depin-log">
+              <div class="log-line">[SYSTEM] PiperNet P2P daemon initialized.</div>
+              <div class="log-line">[PEER] 184.22.91.4 connected via bi-directional socket.</div>
+              <div class="log-line">[DEPIN] Proof of storage challenge verified (Node #842).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: WEISSMAN SCORE ARENA -->
+    <section id="tab-weissman" class="tab-content">
+      <div class="section-header">
+        <h2>Weissman Score <span class="gradient-text">Benchmark Arena</span></h2>
+        <p>Statistical benchmarking comparing Pied Piper Middle-Out against standard algorithms and corporate rivals.</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Arena Control & Formula -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">📐</span> The Weissman Score Standard</h3>
+          </div>
+          <div class="card-body">
+            <div class="formula-box">
+              <div class="formula-title">Weissman Metric Formula:</div>
+              <div class="formula-equation">
+                $$W = \alpha \cdot \frac{r}{\overline{r}} \cdot \frac{\log_{10}{\overline{T}}}{\log_{10}{T}}$$
+              </div>
+              <p class="formula-desc">
+                Where $r$ and $T$ are the compression ratio and compression time of the target algorithm, while $\overline{r}$ and $\overline{T}$ represent standard baseline metrics (Gzip).
+              </p>
+            </div>
+
+            <div class="control-box">
+              <label>Select Test Payload Type:</label>
+              <select id="sel-benchmark-payload" class="select-input">
+                <option value="code">Source Code Repositories (JavaScript/C++)</option>
+                <option value="json">Raw JSON API Embeddings & AI Context</option>
+                <option value="media">4K Uncompressed Raw Media Stream</option>
+                <option value="hooli">Hooli Nucleus Stress Test Payload</option>
+              </select>
+
+              <button id="btn-run-benchmark" class="btn-glow full-width margin-top">
+                <span>🚀 RUN BENCHMARK SUITE</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benchmark Arena Results Chart -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">📊</span> Comparative Benchmark Results</h3>
+            <span id="bm-status" class="badge badge-success">Live Benchmark</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="benchmark-chart" width="550" height="280"></canvas>
+            </div>
+
+            <table class="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>Ratio ($r$)</th>
+                  <th>Time ($T$)</th>
+                  <th>Weissman Score ($W$)</th>
+                </tr>
+              </thead>
+              <tbody id="bm-table-body">
+                <!-- Dynamically filled -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: UNIVERSAL FILE STUDIO & CHATBOT MULTI-TASK PROCESSOR -->
+    <section id="tab-studio" class="tab-content">
+      <div class="section-header">
+        <h2>AI Chatbot File & Folder Studio <span class="gradient-text">(5TB Ultra-Scale Compression Pipeline)</span></h2>
+        <p>Attach massive files or 5TB+ enterprise folder trees. Middle-Out compresses losslessly (5TB → 1.59TB) with zero data loss, interactive post-compression file inspection, local PC export (.pp/.zip), and cloud website integration.</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Chatbot-style File/Folder Attachment Uploader -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">🤖</span> Pied Piper AI Context & File Attachment Studio</h3>
+            <span class="badge badge-success">5TB Stream Chunking Active</span>
+          </div>
+          <div class="card-body">
+            
+            <!-- Chatbot Prompt & Attachment Box -->
+            <div class="chat-upload-wrapper">
+              <div class="chat-input-box">
+                <textarea id="chat-prompt-input" class="chat-textarea" placeholder="Ask Pied Piper AI to compress 5TB datasets, summarize contents, inspect directory tree, export to PC (.zip/.pp), or export to external website..."></textarea>
+                
+                <!-- Attached File Chips / Badges Container -->
+                <div id="attached-chips-container" class="chips-container">
+                  <span class="chip-hint">No attachments yet. Click paperclip or folder button below to attach files or 5TB+ folders!</span>
+                </div>
+
+                <!-- Attachment Action Bar -->
+                <div class="chat-attachment-bar">
+                  <div class="attach-buttons">
+                    <label class="btn-attach" title="Attach Individual Files">
+                      📎 Attach Files
+                      <input type="file" id="chat-attach-files" multiple style="display:none;">
+                    </label>
+                    <label class="btn-attach" title="Attach Entire 5TB+ Folders">
+                      📂 Attach 5TB+ Folder
+                      <input type="file" id="chat-attach-folder" webkitdirectory directory multiple style="display:none;">
+                    </label>
+                    <button id="btn-sample-5tb" class="btn-attach-alt" title="Load Sample 5TB Enterprise Media & Data Folder">⚡ Load Sample 5TB Dataset</button>
+                  </div>
+                  <button id="btn-send-chat-task" class="btn-primary btn-mini-glow">
+                    <span>🚀 EXECUTE MULTI-TASK</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Multi-Task Selector Grid -->
+            <div class="multi-task-options margin-top">
+              <span class="label-sm">Select Multi-Tasks to Perform on Attached Files:</span>
+              <div class="task-checkboxes">
+                <label class="task-chip-check">
+                  <input type="checkbox" id="task-compress" checked>
+                  <span>📦 1. 5TB Middle-Out Compression</span>
+                </label>
+                <label class="task-chip-check">
+                  <input type="checkbox" id="task-tree" checked>
+                  <span>📂 2. Post-Compression Directory Tree</span>
+                </label>
+                <label class="task-chip-check">
+                  <input type="checkbox" id="task-player" checked>
+                  <span>🎬 3. In-Stream RAM Player/Viewer</span>
+                </label>
+                <label class="task-chip-check">
+                  <input type="checkbox" id="task-export" checked>
+                  <span>🌐 4. Cloud & External Website Export</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 5TB Stream Chunk Progress Bar -->
+            <div id="stream-progress-block" class="stream-progress-box hidden">
+              <div class="progress-info">
+                <span id="progress-status-text">Streaming 5 TB Middle-Out Chunking...</span>
+                <span id="progress-percent">0%</span>
+              </div>
+              <div class="progress-track">
+                <div id="progress-bar-fill" class="progress-fill"></div>
+              </div>
+              <div class="stream-metrics-row">
+                <span>Stream Chunked: <strong id="prog-chunks">0 / 5,000 GB</strong></span>
+                <span>Speed: <strong id="prog-speed" class="accent-green">3.4 GB/s</strong></span>
+                <span>Data Fidelity: <strong class="accent-green">100% (0.0% LOSS)</strong></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Post-Compression Directory Tree & Reusable PC Export Workspace -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">📁</span> Post-Compression Folder Tree & PC Export Workspace</h3>
+            <span id="player-status-badge" class="badge">Lossless RAM Engine</span>
+          </div>
+          <div class="card-body">
+            
+            <!-- AI Task Processing Output Log -->
+            <div id="ai-task-results-box" class="ai-task-results hidden">
+              <div class="results-card-title">5TB Compression & AI Processing Summary</div>
+              <div id="ai-summary-text" class="summary-body">
+                <!-- Dynamically generated AI analysis -->
+              </div>
+            </div>
+
+            <!-- Post-Compression Interactive Directory Tree Explorer -->
+            <div id="compressed-tree-wrapper" class="tree-explorer-box hidden">
+              <div class="tree-header">
+                <span>📂 Compressed Archive Directory Inspector (Click file to view in player):</span>
+              </div>
+              <ul id="compressed-tree-ul" class="tree-ul">
+                <!-- Dynamically filled directory nodes -->
+              </ul>
+            </div>
+
+            <!-- In-Stream Lossless Workspace Display -->
+            <div id="workspace-viewer" class="workspace-display margin-top">
+              <div class="empty-workspace">
+                <span>🤖</span>
+                <p>Attach files or 5TB folders in the AI uploader to run multi-task lossless compression & instant playback</p>
+              </div>
+            </div>
+
+            <!-- Post-Compression PC Re-Use & Website Export Controls -->
+            <div id="workspace-controls" class="workspace-bar hidden flex-wrap">
+              <div class="archive-info">
+                <span id="arch-name">5TB_enterprise_cluster.pp</span>
+                <span id="arch-savings" class="accent-green">Saved 68.2% (5.0 TB → 1.59 TB)</span>
+              </div>
+              <div class="export-btn-group">
+                <select id="sel-download-format" class="select-mini">
+                  <option value="pp">Pied Piper Native (.pp)</option>
+                  <option value="zip">Standard PC Zip (.zip)</option>
+                  <option value="targz">DePIN Server (.tar.gz)</option>
+                </select>
+                <button id="btn-download-pp" class="btn-primary btn-mini">⬇️ Download to PC</button>
+                <button id="btn-export-website" class="btn-secondary btn-mini">🌐 Export to External Website</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SDK & PLATFORM INTEGRATIONS -->
+    <section id="tab-sdk" class="tab-content">
+      <div class="section-header">
+        <h2>PiedPiperSDK & <span class="gradient-text">Integration Portal</span></h2>
+        <p>Integrate Pied Piper's Middle-Out compression engine and Web Component players directly into external applications and platforms.</p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- SDK Selector & Code Snippets -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">🔌</span> Developer Code Snippets</h3>
+            <div class="sdk-tabs">
+              <button class="sdk-tab-btn active" data-lang="js">JavaScript / Node</button>
+              <button class="sdk-tab-btn" data-lang="react">React</button>
+              <button class="sdk-tab-btn" data-lang="python">Python</button>
+              <button class="sdk-tab-btn" data-lang="curl">cURL API</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <pre id="sdk-code-block" class="code-preview sdk-code"></pre>
+            <button id="btn-copy-sdk" class="btn-secondary margin-top">📋 Copy Code Snippet</button>
+          </div>
+        </div>
+
+        <!-- Live Web Component Interactive Preview -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><span class="card-icon">🧩</span> Embeddable Web Component Demo</h3>
+          </div>
+          <div class="card-body">
+            <p class="desc-sm">This is how the Pied Piper Web Component player renders inside third-party apps:</p>
+            
+            <div class="embedded-widget-preview">
+              <div class="widget-header">
+                <span class="widget-logo">💚 PiedPiper Player</span>
+                <span class="widget-tag">v4.2-lossless</span>
+              </div>
+              <div class="widget-body">
+                <div class="widget-media">
+                  <div class="wave-animation">
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <div class="widget-text">
+                    <strong>pipernet_stream_4k.pp</strong>
+                    <small>Middle-Out Lossless Audio Stream (68.4% Compressed)</small>
+                  </div>
+                </div>
+                <div class="widget-controls">
+                  <button id="widget-play-btn" class="btn-mini btn-glow">▶ Play Lossless Stream</button>
+                  <span id="widget-status" class="widget-status-text">Ready</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="output-block margin-top">
+              <span class="label-sm">Embed HTML Snippet:</span>
+              <pre class="code-preview">&lt;script src="https://cdn.piedpiper.com/sdk/v4/piedpiper.js"&gt;&lt;/script&gt;
+&lt;pied-piper-player src="https://your-app.com/files/video.pp" theme="dark"&gt;&lt;/pied-piper-player&gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: INCUBATOR & TEAM -->
+    <section id="tab-team" class="tab-content">
+      <div class="section-header">
+        <h2>Hacker Hostel <span class="gradient-text">Incubator Team</span></h2>
+        <p>The architects behind the Middle-Out algorithm and Pied Piper platform.</p>
+      </div>
+
+      <div class="team-grid">
+        <!-- Team Card: Richard -->
+        <div class="glass-card team-card">
+          <div class="avatar-box">
+            <span class="avatar-text">RH</span>
+          </div>
+          <h3>Richard Hendricks</h3>
+          <span class="role-badge">Founder & CEO / CTO</span>
+          <p>Inventor of the Middle-Out compression algorithm. Obsessed with Weissman scores, tabs over spaces, and lossless efficiency.</p>
+        </div>
+
+        <!-- Team Card: Erlich -->
+        <div class="glass-card team-card">
+          <div class="avatar-box avatar-erlich">
+            <span class="avatar-text">EB</span>
+          </div>
+          <h3>Erlich Bachman</h3>
+          <span class="role-badge">Incubator Owner & Board Member</span>
+          <p>Founder of Aviato. Visionary entrepreneur, negotiator, and custodian of the Hacker Hostel.</p>
+        </div>
+
+        <!-- Team Card: Gilfoyle -->
+        <div class="glass-card team-card">
+          <div class="avatar-box avatar-gilfoyle">
+            <span class="avatar-text">BG</span>
+          </div>
+          <h3>Bertram Gilfoyle</h3>
+          <span class="role-badge">System Architect & Security</span>
+          <p>LaVeyan Satanist, network engineer, and creator of Anton (server rack). Maintains 99.999% uptime through sheer malice.</p>
+        </div>
+
+        <!-- Team Card: Dinesh -->
+        <div class="glass-card team-card">
+          <div class="avatar-box avatar-dinesh">
+            <span class="avatar-text">DC</span>
+          </div>
+          <h3>Dinesh Chugtai</h3>
+          <span class="role-badge">Senior Programmer & Systems</span>
+          <p>Java specialist, video chat architect, and code reviewer. Constantly feuding with Gilfoyle over system benchmarks.</p>
+        </div>
+
+        <!-- Team Card: Jared -->
+        <div class="glass-card team-card">
+          <div class="avatar-box avatar-jared">
+            <span class="avatar-text">JD</span>
+          </div>
+          <h3>Jared (Donald) Dunn</h3>
+          <span class="role-badge">COO & VP of Business</span>
+          <p>Former Hooli executive. Master of corporate pivot strategy, agile SCRUM methodology, and team morale.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: INTERACTIVE TERMINAL -->
+    <section id="tab-terminal" class="tab-content">
+      <div class="section-header">
+        <h2>Pied Piper CLI <span class="gradient-text">Interactive Terminal</span></h2>
+        <p>Command line interface for system diagnostics, compression triggers, and Easter eggs.</p>
+      </div>
+
+      <div class="glass-card terminal-card">
+        <div class="terminal-bar">
+          <div class="term-dots">
+            <span class="t-dot red"></span>
+            <span class="t-dot yellow"></span>
+            <span class="t-dot green"></span>
+          </div>
+          <span class="term-title">bash — piedpiper@anton-server:~ (pp-cli v4.2)</span>
+        </div>
+        <div class="terminal-body" id="term-output">
+          <div class="term-line">Welcome to <strong class="accent-green">Pied Piper OS (Anton-V)</strong></div>
+          <div class="term-line">Type <span class="accent-yellow">'help'</span> to see available commands.</div>
+          <div class="term-line">&nbsp;</div>
+        </div>
+        <div class="terminal-input-row">
+          <span class="term-prompt">piedpiper@anton:~$</span>
+          <input type="text" id="term-input" autocomplete="off" spellcheck="false" placeholder="Type a command (e.g. 'help', 'compress hello world', 'weissman', 'matrix')...">
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p>© 2026 Pied Piper Inc. Powered by Middle-Out AI & PiperNet DePIN. Built with pride in Silicon Valley.</p>
+      <div class="footer-links">
+        <a href="#" id="link-hooli-alert">Hooli Rivalry Status</a>
+        <a href="#" id="link-always-blue">Always Blue Game</a>
+        <a href="#" id="link-weissman-docs">Weissman Standard Docs</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="audio.js"></script>
+  <script src="middle-out-ai.js"></script>
+  <script src="pipernet-depin.js"></script>
+  <script src="weissman-arena.js"></script>
+  <script src="file-studio.js"></script>
+  <script src="sdk-integration.js"></script>
+  <script src="terminal.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280" width="100%" height="100%">
+  <!-- Pied Piper Iconic Silhouette Logo -->
+  <g fill="#25A244">
+    <!-- Feather curving up to top right -->
+    <path d="M205,45 Q265,10 280,5 Q265,30 220,60 Q205,52 205,45 Z" />
+    
+    <!-- Hat -->
+    <path d="M175,45 L208,68 L170,72 L160,65 Z" />
+    
+    <!-- Head & Hair Profile -->
+    <path d="M175,70 C185,72 195,80 192,92 C190,98 185,102 188,108 C192,112 200,105 208,98 L212,106 C200,116 188,120 180,112 C175,108 174,100 172,94 C170,88 168,82 175,70 Z" />
+    
+    <!-- Flute/Pipe held horizontally -->
+    <path d="M78,110 L168,88 L170,95 L80,117 Z" stroke="#25A244" stroke-width="2" />
+
+    <!-- Arms holding Pipe -->
+    <path d="M138,100 C145,90 152,88 160,94 C155,102 148,105 138,100 Z" />
+    <path d="M152,98 C160,88 170,88 176,96 L168,102 C162,96 156,96 152,98 Z" />
+
+    <!-- Torso / Tunic & Belt -->
+    <path d="M182,108 L188,168 C175,172 155,176 142,175 L140,125 C150,118 165,112 182,108 Z" />
+
+    <!-- Belt detail -->
+    <path d="M142,158 L187,152 L188,160 L142,166 Z" fill="#1C7C33" />
+    <rect x="158" y="152" width="10" height="12" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+
+    <!-- Lower Tunic / Skirt -->
+    <path d="M142,175 C160,176 180,172 190,168 L195,190 L145,195 Z" />
+
+    <!-- Cape flowing to the right -->
+    <path d="M185,100 Q205,105 235,145 Q265,185 285,210 Q225,195 192,165 Z" />
+
+    <!-- Text: 'pied' -->
+    <text x="5" y="175" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="70" fill="#25A244" letter-spacing="-2">pied</text>
+
+    <!-- Text: 'piper' -->
+    <text x="40" y="245" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="70" fill="#25A244" letter-spacing="-2">piper</text>
+  </g>
+</svg>
