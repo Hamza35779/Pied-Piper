@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" width="100%" height="100%">
+  <!-- Pied Piper Full Logo with Text -->
+  <g fill="#25A244">
+    <!-- Feather sweeping up to top right -->
+    <path d="M165,22 Q215,2 230,0 Q215,16 175,32 Z" />
+    
+    <!-- Hat -->
+    <path d="M140,22 L172,35 L138,38 Z" />
+    
+    <!-- Head Profile -->
+    <path d="M140,36 C150,38 160,44 156,52 C154,57 148,60 152,66 C156,70 165,64 172,58 L176,64 C166,72 154,76 146,70 C141,66 140,60 138,54 C136,48 134,42 140,36 Z" />
+    
+    <!-- Flute/Pipe -->
+    <path d="M60,60 L136,48 L138,54 L62,66 Z" stroke="#25A244" stroke-width="2" />
+
+    <!-- Torso & Belt -->
+    <path d="M144,60 L150,98 C140,101 124,103 114,102 L112,72 C120,68 132,64 144,60 Z" />
+    <path d="M112,92 L149,87 L150,93 L112,97 Z" fill="#1C7C33" />
+    <path d="M112,102 C125,103 140,100 150,98 L154,114 L114,118 Z" />
+
+    <!-- Cape -->
+    <path d="M148,55 Q164,60 190,85 Q212,110 228,126 Q190,116 160,94 Z" />
+
+    <!-- Text: 'pied' -->
+    <text x="10" y="150" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="52" fill="#25A244" letter-spacing="-1">pied</text>
+
+    <!-- Text: 'piper' -->
+    <text x="40" y="202" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="52" fill="#25A244" letter-spacing="-1">piper</text>
+  </g>
+</svg>

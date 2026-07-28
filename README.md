@@ -1,7 +1,7 @@
 # Pied Piper — Next-Gen AI & DePIN Middle-Out Compression Platform
 
 <p align="center">
-  <img src="logo.svg" alt="Pied Piper Official Logo" width="220" />
+  <img src="logo-full.svg" alt="Pied Piper Official Logo" width="240" />
 </p>
 
 <p align="center">
