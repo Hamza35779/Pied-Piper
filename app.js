@@ -29,6 +29,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Theme Toggle (Light / Dark Mode)
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+  if (themeToggle && themeIcon) {
+    themeToggle.addEventListener('click', () => {
+      const body = document.body;
+      if (body.classList.contains('dark-theme')) {
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+        themeIcon.textContent = '🌙';
+      } else {
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+        themeIcon.textContent = '☀️';
+      }
+      if (window.ppAudio) window.ppAudio.playClick();
+    });
+  }
+
   // Sound FX Toggle
   const soundBtn = document.getElementById('sound-toggle');
   const soundIcon = document.getElementById('sound-icon');
