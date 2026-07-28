@@ -1,39 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280" width="100%" height="100%">
-  <!-- Pied Piper Iconic Silhouette Logo -->
-  <g fill="#25A244">
-    <!-- Feather curving up to top right -->
-    <path d="M205,45 Q265,10 280,5 Q265,30 220,60 Q205,52 205,45 Z" />
-    
-    <!-- Hat -->
-    <path d="M175,45 L208,68 L170,72 L160,65 Z" />
-    
-    <!-- Head & Hair Profile -->
-    <path d="M175,70 C185,72 195,80 192,92 C190,98 185,102 188,108 C192,112 200,105 208,98 L212,106 C200,116 188,120 180,112 C175,108 174,100 172,94 C170,88 168,82 175,70 Z" />
-    
-    <!-- Flute/Pipe held horizontally -->
-    <path d="M78,110 L168,88 L170,95 L80,117 Z" stroke="#25A244" stroke-width="2" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <!-- Exact Official Pied Piper Green Flute Player Silhouette -->
+  <g fill="#2B9337">
+    <!-- Feather: sweeping from hat up to top right corner -->
+    <path d="M310,165 Q390,130 475,25 C430,75 365,120 310,150 Z" />
 
-    <!-- Arms holding Pipe -->
-    <path d="M138,100 C145,90 152,88 160,94 C155,102 148,105 138,100 Z" />
-    <path d="M152,98 C160,88 170,88 176,96 L168,102 C162,96 156,96 152,98 Z" />
+    <!-- Hat: pointed Robin Hood style cap with brim -->
+    <path d="M225,120 C240,95 285,70 310,120 L318,140 C280,140 240,145 210,175 C210,160 215,140 225,120 Z" />
 
-    <!-- Torso / Tunic & Belt -->
-    <path d="M182,108 L188,168 C175,172 155,176 142,175 L140,125 C150,118 165,112 182,108 Z" />
+    <!-- Long Pipe / Flute: extending far left with rounded end -->
+    <rect x="15" y="235" width="220" height="24" rx="12" transform="rotate(-10, 125, 247)" />
 
-    <!-- Belt detail -->
-    <path d="M142,158 L187,152 L188,160 L142,166 Z" fill="#1C7C33" />
-    <rect x="158" y="152" width="10" height="12" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+    <!-- Profile Face & Nose/Mouth touching Flute -->
+    <path d="M225,175 C215,185 220,205 230,215 L235,240 C245,260 270,265 295,255 L305,235 C285,225 270,200 255,180 C245,170 235,170 225,175 Z" />
 
-    <!-- Lower Tunic / Skirt -->
-    <path d="M142,175 C160,176 180,172 190,168 L195,190 L145,195 Z" />
+    <!-- Arms holding Flute -->
+    <path d="M190,230 L220,220 L235,245 L200,260 Z" />
+    <path d="M260,250 L140,235 L125,270 L245,290 L260,350 L300,340 L300,270 Z" />
 
-    <!-- Cape flowing to the right -->
-    <path d="M185,100 Q205,105 235,145 Q265,185 285,210 Q225,195 192,165 Z" />
+    <!-- Cape: flowing gracefully down to bottom right -->
+    <path d="M305,250 C330,260 380,310 405,380 C440,430 485,475 485,475 C420,445 385,385 360,345 C345,320 325,280 305,250 Z" />
 
-    <!-- Text: 'pied' -->
-    <text x="5" y="175" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="70" fill="#25A244" letter-spacing="-2">pied</text>
+    <!-- Tunic Waist & Belt Cutout -->
+    <path d="M260,350 L340,325 L355,470 L260,475 Z" />
 
-    <!-- Text: 'piper' -->
-    <text x="40" y="245" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="70" fill="#25A244" letter-spacing="-2">piper</text>
+    <!-- White Belt line gap -->
+    <path d="M260,390 L345,365 L347,380 L260,408 Z" fill="#FFFFFF" />
   </g>
 </svg>
