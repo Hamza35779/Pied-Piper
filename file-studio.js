@@ -29,14 +29,44 @@ class UniversalFileStudio {
   }
 
   init() {
+    const btnTriggerFiles = document.getElementById('btn-trigger-files');
+    const btnTriggerFolder = document.getElementById('btn-trigger-folder');
     const inputFiles = document.getElementById('chat-attach-files');
     const inputFolder = document.getElementById('chat-attach-folder');
 
-    if (inputFiles) {
-      inputFiles.addEventListener('change', (e) => this.handleAttachFiles(e.target.files));
+    // Trigger file picker on button click
+    if (btnTriggerFiles && inputFiles) {
+      btnTriggerFiles.addEventListener('click', () => inputFiles.click());
+      inputFiles.addEventListener('change', (e) => {
+        this.handleAttachFiles(e.target.files);
+        inputFiles.value = ''; // Reset so same file can be re-selected
+      });
     }
-    if (inputFolder) {
-      inputFolder.addEventListener('change', (e) => this.handleAttachFiles(e.target.files));
+
+    if (btnTriggerFolder && inputFolder) {
+      btnTriggerFolder.addEventListener('click', () => inputFolder.click());
+      inputFolder.addEventListener('change', (e) => {
+        this.handleAttachFiles(e.target.files);
+        inputFolder.value = '';
+      });
+    }
+
+    // Drag and drop directly on chat upload wrapper
+    const chatWrapper = document.querySelector('.chat-upload-wrapper');
+    if (chatWrapper) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        chatWrapper.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }, false);
+      });
+
+      chatWrapper.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+          this.handleAttachFiles(files);
+        }
+      });
     }
 
     if (this.btnSample5TB) {
@@ -72,6 +102,7 @@ class UniversalFileStudio {
     });
 
     this.renderChips();
+    if (window.ppAudio) window.ppAudio.playClick();
   }
 
   loadSample5TBDataset() {
@@ -134,14 +165,13 @@ class UniversalFileStudio {
       return;
     }
 
-    const doCompress = document.getElementById('task-compress').checked;
-    const doTree = document.getElementById('task-tree').checked;
-    const doPlayer = document.getElementById('task-player').checked;
-    const doExport = document.getElementById('task-export').checked;
+    const doCompress = document.getElementById('task-compress') ? document.getElementById('task-compress').checked : true;
+    const doTree = document.getElementById('task-tree') ? document.getElementById('task-tree').checked : true;
+    const doPlayer = document.getElementById('task-player') ? document.getElementById('task-player').checked : true;
+    const doExport = document.getElementById('task-export') ? document.getElementById('task-export').checked : true;
 
     let totalBytes = 0;
     this.attachedItems.forEach(i => totalBytes += i.size);
-    const totalTB = (totalBytes / (1024 * 1024 * 1024 * 1024)).toFixed(2);
     const totalGB = (totalBytes / (1024 * 1024 * 1024)).toFixed(0);
 
     if (this.progressBlock) this.progressBlock.classList.remove('hidden');
@@ -150,7 +180,7 @@ class UniversalFileStudio {
     if (window.ppAudio) window.ppAudio.playCompressionSweep();
 
     const interval = setInterval(() => {
-      progress += 4;
+      progress += 5;
       if (progress > 100) progress = 100;
 
       if (this.progressBarFill) this.progressBarFill.style.width = `${progress}%`;
@@ -162,7 +192,7 @@ class UniversalFileStudio {
         clearInterval(interval);
         this.finishMultiTask(doCompress, doTree, doPlayer, doExport, totalBytes);
       }
-    }, 70);
+    }, 60);
   }
 
   finishMultiTask(doCompress, doTree, doPlayer, doExport, totalBytes) {
@@ -221,7 +251,7 @@ class UniversalFileStudio {
     this.treeWrapper.classList.remove('hidden');
     this.treeUl.innerHTML = '';
 
-    this.attachedItems.forEach((item, idx) => {
+    this.attachedItems.forEach((item) => {
       const li = document.createElement('li');
       li.className = 'tree-item';
       const icon = item.isFolder ? '📂' : (item.type === 'video' ? '🎬' : (item.type === 'binary' ? '⚙️' : '📄'));
@@ -229,7 +259,7 @@ class UniversalFileStudio {
 
       li.innerHTML = `
         <span>${icon} ${item.path || item.name}</span>
-        <span style="color: #00E676;">${sizeStr} [Compressed]</span>
+        <span style="color: var(--accent-green); font-weight: bold;">${sizeStr} [Compressed]</span>
       `;
 
       li.addEventListener('click', () => {

@@ -342,17 +342,19 @@
                 <!-- Attachment Action Bar -->
                 <div class="chat-attachment-bar">
                   <div class="attach-buttons">
-                    <label class="btn-attach" title="Attach Individual Files">
+                    <button type="button" id="btn-trigger-files" class="btn-attach" title="Attach Individual Files">
                       📎 Attach Files
-                      <input type="file" id="chat-attach-files" multiple style="display:none;">
-                    </label>
-                    <label class="btn-attach" title="Attach Entire 5TB+ Folders">
+                    </button>
+                    <input type="file" id="chat-attach-files" multiple class="hidden-file-input">
+
+                    <button type="button" id="btn-trigger-folder" class="btn-attach" title="Attach Entire 5TB+ Folders">
                       📂 Attach 5TB+ Folder
-                      <input type="file" id="chat-attach-folder" webkitdirectory directory multiple style="display:none;">
-                    </label>
-                    <button id="btn-sample-5tb" class="btn-attach-alt" title="Load Sample 5TB Enterprise Media & Data Folder">⚡ Load Sample 5TB Dataset</button>
+                    </button>
+                    <input type="file" id="chat-attach-folder" webkitdirectory directory multiple class="hidden-file-input">
+
+                    <button type="button" id="btn-sample-5tb" class="btn-attach-alt" title="Load Sample 5TB Enterprise Media & Data Folder">⚡ Load Sample 5TB Dataset</button>
                   </div>
-                  <button id="btn-send-chat-task" class="btn-primary btn-mini-glow">
+                  <button type="button" id="btn-send-chat-task" class="btn-primary btn-mini-glow">
                     <span>🚀 EXECUTE MULTI-TASK</span>
                   </button>
                 </div>
