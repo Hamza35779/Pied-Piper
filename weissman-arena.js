@@ -3,9 +3,10 @@
    ========================================================================== */
 
 class WeissmanArena {
-  constructor() {
-    this.canvas = document.getElementById('benchmark-chart');
-    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+  getCanvas() {
+    const canvas = document.getElementById('benchmark-chart');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    return { canvas, ctx };
   }
 
   getPresetData(payloadType) {
@@ -72,59 +73,52 @@ class WeissmanArena {
   }
 
   renderChart(data) {
-    if (!this.canvas || !this.ctx) return;
-    const w = this.canvas.width;
-    const h = this.canvas.height;
-    this.ctx.clearRect(0, 0, w, h);
+    const { canvas, ctx } = this.getCanvas();
+    if (!canvas || !ctx) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
 
     const padding = 40;
     const barWidth = 45;
     const gap = (w - padding * 2 - (data.length * barWidth)) / (data.length - 1);
     const maxWeissman = Math.max(...data.map(d => d.weissman), 10);
 
-    // Draw Y Axis Grid Lines
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
-    this.ctx.lineWidth = 1;
-    this.ctx.font = '10px "Fira Code", monospace';
-    this.ctx.fillStyle = '#64748B';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.font = '10px "Fira Code", monospace';
+    ctx.fillStyle = '#64748B';
 
     for (let i = 0; i <= 5; i++) {
       const val = (maxWeissman / 5) * i;
       const y = h - padding - (i * (h - padding * 2) / 5);
-      this.ctx.beginPath();
-      this.ctx.moveTo(padding, y);
-      this.ctx.lineTo(w - padding, y);
-      this.ctx.stroke();
-      this.ctx.fillText(`${val.toFixed(1)}W`, 8, y + 3);
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(w - padding, y);
+      ctx.stroke();
+      ctx.fillText(`${val.toFixed(1)}W`, 8, y + 3);
     }
 
-    // Draw Bars
     data.forEach((item, idx) => {
       const x = padding + idx * (barWidth + gap);
       const barHeight = (item.weissman / maxWeissman) * (h - padding * 2);
       const y = h - padding - barHeight;
 
-      // Fill Bar
-      this.ctx.fillStyle = item.color;
-      this.ctx.shadowColor = item.color;
-      this.ctx.shadowBlur = 10;
-      this.ctx.fillRect(x, y, barWidth, barHeight);
-      this.ctx.shadowBlur = 0;
+      ctx.fillStyle = item.color;
+      ctx.fillRect(x, y, barWidth, barHeight);
 
-      // Weissman Value Text
-      this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = 'bold 11px "Fira Code", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(`${item.weissman.toFixed(1)}`, x + barWidth / 2, y - 8);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 11px "Fira Code", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${item.weissman.toFixed(1)}`, x + barWidth / 2, y - 8);
 
-      // Label below bar
-      this.ctx.fillStyle = '#94A3B8';
-      this.ctx.font = '9px "Inter", sans-serif';
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '9px "Inter", sans-serif';
       const shortName = item.name.split(' ')[0];
-      this.ctx.fillText(shortName, x + barWidth / 2, h - padding + 16);
+      ctx.fillText(shortName, x + barWidth / 2, h - padding + 16);
     });
 
-    this.ctx.textAlign = 'left';
+    ctx.textAlign = 'left';
   }
 }
 

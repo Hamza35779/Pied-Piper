@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabContents = document.querySelectorAll('.tab-content');
 
   navBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', () => {
       const targetTabId = btn.getAttribute('data-tab');
 
       navBtns.forEach(b => b.classList.remove('active'));
@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.piperNet.init();
       } else if (targetTabId === 'tab-weissman' && window.weissmanArena) {
         window.weissmanArena.runBenchmark('code');
+      } else if (targetTabId === 'tab-studio' && window.fileStudio) {
+        window.fileStudio.init();
       }
     });
   });
@@ -98,11 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const res = window.moEngine.compress(text, isNeural, isBiDir);
 
-      document.getElementById('m-orig-size').textContent = `${res.originalSize} B`;
-      document.getElementById('m-comp-size').textContent = `${res.compressedSize} B`;
-      document.getElementById('m-savings').textContent = `${res.spaceSavedPercent}%`;
-      document.getElementById('m-weissman').textContent = `${res.weissmanScore} W`;
-      document.getElementById('mo-output-stream').textContent = res.compressedStream;
+      const elOrig = document.getElementById('m-orig-size');
+      const elComp = document.getElementById('m-comp-size');
+      const elSav = document.getElementById('m-savings');
+      const elWei = document.getElementById('m-weissman');
+      const elOut = document.getElementById('mo-output-stream');
+
+      if (elOrig) elOrig.textContent = `${res.originalSize} B`;
+      if (elComp) elComp.textContent = `${res.compressedSize} B`;
+      if (elSav) elSav.textContent = `${res.spaceSavedPercent}%`;
+      if (elWei) elWei.textContent = `${res.weissmanScore} W`;
+      if (elOut) elOut.textContent = res.compressedStream;
 
       const badge = document.getElementById('mo-status-badge');
       if (badge) {
@@ -110,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.className = 'badge badge-success';
       }
 
-      // Render Tree Animation
       window.moEngine.renderTreeAnimation(text);
       if (window.ppAudio) window.ppAudio.playCompressionSweep();
     });
@@ -119,11 +126,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnResetMO && inputTextMO) {
     btnResetMO.addEventListener('click', () => {
       inputTextMO.value = '';
-      document.getElementById('m-orig-size').textContent = '0 B';
-      document.getElementById('m-comp-size').textContent = '0 B';
-      document.getElementById('m-savings').textContent = '0.0%';
-      document.getElementById('m-weissman').textContent = '0.00 W';
-      document.getElementById('mo-output-stream').textContent = '// Compressed bytes will appear here...';
+      const elOrig = document.getElementById('m-orig-size');
+      const elComp = document.getElementById('m-comp-size');
+      const elSav = document.getElementById('m-savings');
+      const elWei = document.getElementById('m-weissman');
+      const elOut = document.getElementById('mo-output-stream');
+
+      if (elOrig) elOrig.textContent = '0 B';
+      if (elComp) elComp.textContent = '0 B';
+      if (elSav) elSav.textContent = '0.0%';
+      if (elWei) elWei.textContent = '0.00 W';
+      if (elOut) elOut.textContent = '// Compressed bytes will appear here...';
 
       const badge = document.getElementById('mo-status-badge');
       if (badge) {
@@ -154,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
           nodes: 14892,
           algorithm: "Middle-Out Neural",
           entropy_reduction: 0.88,
-          dataset: Array.from({length: 20}, (_, i) => ({ id: i, hash: `0x${i*49281a}` }))
+          dataset: Array.from({length: 10}, (_, i) => ({ id: i, hash: `0x${i*49281a}` }))
         }, null, 2);
       } else if (type === 'code') {
         sampleText = `function middleOutCompress(buffer) {
@@ -188,7 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (sliderTraffic) {
     sliderTraffic.addEventListener('input', (e) => {
-      document.getElementById('lbl-traffic').textContent = `${e.target.value}%`;
+      const lblTraffic = document.getElementById('lbl-traffic');
+      if (lblTraffic) lblTraffic.textContent = `${e.target.value}%`;
       window.piperNet.setTrafficLoad(parseInt(e.target.value));
     });
   }
@@ -244,4 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load default preset into Middle-Out text box
   const firstPreset = document.querySelector('.preset-btn[data-sample="json"]');
   if (firstPreset) firstPreset.click();
+
+  // Initial call for file studio
+  if (window.fileStudio) window.fileStudio.init();
 });
