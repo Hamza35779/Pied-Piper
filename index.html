@@ -10,6 +10,73 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <script>
+    function switchTab(tabId) {
+      if (!tabId) return;
+      var navBtns = document.querySelectorAll('.nav-btn');
+      var tabContents = document.querySelectorAll('.tab-content');
+
+      navBtns.forEach(function(btn) {
+        if (btn.getAttribute('data-tab') === tabId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      tabContents.forEach(function(content) {
+        if (content.id === tabId) {
+          content.classList.add('active');
+        } else {
+          content.classList.remove('active');
+        }
+      });
+
+      if (window.ppAudio) window.ppAudio.playClick();
+      if (tabId === 'tab-depin' && window.piperNet) window.piperNet.init();
+      if (tabId === 'tab-weissman' && window.weissmanArena) window.weissmanArena.runBenchmark('code');
+      if (tabId === 'tab-studio' && window.fileStudio) window.fileStudio.init();
+      if (tabId === 'tab-sdk' && window.sdkIntegration) window.sdkIntegration.init();
+      if (tabId === 'tab-terminal' && window.ppTerminal) window.ppTerminal.init();
+    }
+
+    function toggleTheme() {
+      var body = document.body;
+      var themeIcon = document.getElementById('theme-icon');
+      var current = body.getAttribute('data-current-theme') || (body.classList.contains('light-theme') ? 'light' : (body.classList.contains('aviato-theme') ? 'aviato' : 'dark'));
+      var newTheme = 'dark';
+
+      if (current === 'dark') newTheme = 'light';
+      else if (current === 'light') newTheme = 'aviato';
+      else newTheme = 'dark';
+
+      body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
+      body.setAttribute('data-current-theme', newTheme);
+
+      if (newTheme === 'light') {
+        body.classList.add('light-theme');
+        if (themeIcon) themeIcon.textContent = '🌙';
+      } else if (newTheme === 'aviato') {
+        body.classList.add('aviato-theme');
+        if (themeIcon) themeIcon.textContent = '✈️';
+      } else {
+        body.classList.add('dark-theme');
+        if (themeIcon) themeIcon.textContent = '☀️';
+      }
+
+      localStorage.setItem('pp_theme', newTheme);
+      if (window.ppAudio) window.ppAudio.playClick();
+    }
+
+    function toggleSound() {
+      var soundIcon = document.getElementById('sound-icon');
+      if (window.ppAudio) {
+        var isMuted = window.ppAudio.toggleMute();
+        if (soundIcon) soundIcon.textContent = isMuted ? '🔇' : '🔊';
+      }
+    }
+  </script>
 </head>
 <body class="dark-theme">
 
