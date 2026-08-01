@@ -1,95 +1,96 @@
 /* ==========================================================================
-   PIED PIPER - MAIN APPLICATION ORCHESTRATOR & EVENT BINDINGS
+   PIED PIPER - MAIN APPLICATION ORCHESTRATOR & GLOBAL EVENT HANDLERS
    ========================================================================== */
 
-const initPiedPiperApp = () => {
-  // Init Tab Navigation
+// Global Fail-Safe Tab Switcher
+window.switchTab = function(tabId) {
+  if (!tabId) return;
+
   const navBtns = document.querySelectorAll('.nav-btn');
   const tabContents = document.querySelectorAll('.tab-content');
 
   navBtns.forEach(btn => {
-    btn.onclick = (e) => {
-      e.preventDefault();
-      const targetTabId = btn.getAttribute('data-tab');
-
-      navBtns.forEach(b => b.classList.remove('active'));
-      tabContents.forEach(c => c.classList.remove('active'));
-
+    if (btn.getAttribute('data-tab') === tabId) {
       btn.classList.add('active');
-      const targetEl = document.getElementById(targetTabId);
-      if (targetEl) targetEl.classList.add('active');
-
-      if (window.ppAudio) window.ppAudio.playClick();
-
-      // Trigger sub-system initializations on tab switch
-      if (targetTabId === 'tab-depin' && window.piperNet) {
-        window.piperNet.init();
-      } else if (targetTabId === 'tab-weissman' && window.weissmanArena) {
-        window.weissmanArena.runBenchmark('code');
-      } else if (targetTabId === 'tab-studio' && window.fileStudio) {
-        window.fileStudio.init();
-      } else if (targetTabId === 'tab-sdk' && window.sdkIntegration) {
-        window.sdkIntegration.init();
-      } else if (targetTabId === 'tab-terminal' && window.ppTerminal) {
-        window.ppTerminal.init();
-      }
-    };
+    } else {
+      btn.classList.remove('active');
+    }
   });
 
-  // Theme Toggle (Dark / Light / Aviato Mode)
-  const themeToggle = document.getElementById('theme-toggle');
-  const themeIcon = document.getElementById('theme-icon');
-  
-  const applyTheme = (theme) => {
-    const body = document.body;
-    body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
-    
-    if (theme === 'light') {
-      body.classList.add('light-theme');
-      if (themeIcon) themeIcon.textContent = '🌙';
-    } else if (theme === 'aviato') {
-      body.classList.add('aviato-theme');
-      if (themeIcon) themeIcon.textContent = '✈️';
+  tabContents.forEach(content => {
+    if (content.id === tabId) {
+      content.classList.add('active');
     } else {
-      body.classList.add('dark-theme');
-      if (themeIcon) themeIcon.textContent = '☀️';
+      content.classList.remove('active');
     }
-  };
+  });
 
-  const savedTheme = localStorage.getItem('pp_theme') || 'dark';
-  applyTheme(savedTheme);
+  if (window.ppAudio) window.ppAudio.playClick();
 
-  if (themeToggle) {
-    themeToggle.onclick = (e) => {
-      e.preventDefault();
-      const body = document.body;
-      let newTheme = 'dark';
+  // Sub-system initializations
+  if (tabId === 'tab-depin' && window.piperNet) window.piperNet.init();
+  if (tabId === 'tab-weissman' && window.weissmanArena) window.weissmanArena.runBenchmark('code');
+  if (tabId === 'tab-studio' && window.fileStudio) window.fileStudio.init();
+  if (tabId === 'tab-sdk' && window.sdkIntegration) window.sdkIntegration.init();
+  if (tabId === 'tab-terminal' && window.ppTerminal) window.ppTerminal.init();
+};
 
-      if (body.classList.contains('dark-theme')) {
-        newTheme = 'light';
-      } else if (body.classList.contains('light-theme')) {
-        newTheme = 'aviato';
-      } else {
-        newTheme = 'dark';
-      }
+// Global Fail-Safe Theme Toggle (Dark -> Light -> Aviato -> Dark)
+window.toggleTheme = function() {
+  const body = document.body;
+  const themeIcon = document.getElementById('theme-icon');
 
-      localStorage.setItem('pp_theme', newTheme);
-      applyTheme(newTheme);
-      if (window.ppAudio) window.ppAudio.playClick();
-    };
+  let current = body.getAttribute('data-current-theme') || (body.classList.contains('light-theme') ? 'light' : (body.classList.contains('aviato-theme') ? 'aviato' : 'dark'));
+  let newTheme = 'dark';
+
+  if (current === 'dark') newTheme = 'light';
+  else if (current === 'light') newTheme = 'aviato';
+  else newTheme = 'dark';
+
+  body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
+  body.setAttribute('data-current-theme', newTheme);
+
+  if (newTheme === 'light') {
+    body.classList.add('light-theme');
+    if (themeIcon) themeIcon.textContent = '🌙';
+  } else if (newTheme === 'aviato') {
+    body.classList.add('aviato-theme');
+    if (themeIcon) themeIcon.textContent = '✈️';
+  } else {
+    body.classList.add('dark-theme');
+    if (themeIcon) themeIcon.textContent = '☀️';
   }
 
-  // Sound FX Toggle
-  const soundBtn = document.getElementById('sound-toggle');
+  localStorage.setItem('pp_theme', newTheme);
+  if (window.ppAudio) window.ppAudio.playClick();
+};
+
+// Global Fail-Safe Sound Toggle
+window.toggleSound = function() {
   const soundIcon = document.getElementById('sound-icon');
-  if (soundBtn && soundIcon) {
-    soundBtn.onclick = (e) => {
-      e.preventDefault();
-      if (window.ppAudio) {
-        const isMuted = window.ppAudio.toggleMute();
-        soundIcon.textContent = isMuted ? '🔇' : '🔊';
-      }
-    };
+  if (window.ppAudio) {
+    const isMuted = window.ppAudio.toggleMute();
+    if (soundIcon) soundIcon.textContent = isMuted ? '🔇' : '🔊';
+  }
+};
+
+const initPiedPiperApp = () => {
+  // Restore saved theme on page load
+  const savedTheme = localStorage.getItem('pp_theme') || 'dark';
+  const body = document.body;
+  const themeIcon = document.getElementById('theme-icon');
+  body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
+  body.setAttribute('data-current-theme', savedTheme);
+
+  if (savedTheme === 'light') {
+    body.classList.add('light-theme');
+    if (themeIcon) themeIcon.textContent = '🌙';
+  } else if (savedTheme === 'aviato') {
+    body.classList.add('aviato-theme');
+    if (themeIcon) themeIcon.textContent = '✈️';
+  } else {
+    body.classList.add('dark-theme');
+    if (themeIcon) themeIcon.textContent = '☀️';
   }
 
   // Header Logo click -> Switch to middle-out tab
@@ -97,18 +98,7 @@ const initPiedPiperApp = () => {
   if (logoBtn) {
     logoBtn.onclick = (e) => {
       e.preventDefault();
-      const moNav = document.querySelector('.nav-btn[data-tab="tab-middle-out"]');
-      if (moNav) moNav.click();
-    };
-  }
-
-  // CTA Compress -> Switch to File Studio tab
-  const ctaCompress = document.getElementById('cta-compress');
-  if (ctaCompress) {
-    ctaCompress.onclick = (e) => {
-      e.preventDefault();
-      const studioNav = document.querySelector('.nav-btn[data-tab="tab-studio"]');
-      if (studioNav) studioNav.click();
+      window.switchTab('tab-middle-out');
     };
   }
 
@@ -285,8 +275,7 @@ const initPiedPiperApp = () => {
   if (linkWeissmanDocs) {
     linkWeissmanDocs.onclick = (e) => {
       e.preventDefault();
-      const tabWeissman = document.querySelector('.nav-btn[data-tab="tab-weissman"]');
-      if (tabWeissman) tabWeissman.click();
+      window.switchTab('tab-weissman');
     };
   }
 

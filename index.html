@@ -39,37 +39,37 @@
       </div>
 
       <nav class="main-nav">
-        <button class="nav-btn active" data-tab="tab-studio">
+        <button class="nav-btn active" data-tab="tab-studio" onclick="switchTab('tab-studio')">
           <span class="nav-icon">📁</span> File Studio
         </button>
-        <button class="nav-btn" data-tab="tab-middle-out">
+        <button class="nav-btn" data-tab="tab-middle-out" onclick="switchTab('tab-middle-out')">
           <span class="nav-icon">⚡</span> Middle-Out AI
         </button>
-        <button class="nav-btn" data-tab="tab-depin">
+        <button class="nav-btn" data-tab="tab-depin" onclick="switchTab('tab-depin')">
           <span class="nav-icon">🌐</span> PiperNet DePIN
         </button>
-        <button class="nav-btn" data-tab="tab-weissman">
+        <button class="nav-btn" data-tab="tab-weissman" onclick="switchTab('tab-weissman')">
           <span class="nav-icon">📊</span> Weissman Arena
         </button>
-        <button class="nav-btn" data-tab="tab-sdk">
+        <button class="nav-btn" data-tab="tab-sdk" onclick="switchTab('tab-sdk')">
           <span class="nav-icon">🔌</span> SDK & Integrations
         </button>
-        <button class="nav-btn" data-tab="tab-team">
+        <button class="nav-btn" data-tab="tab-team" onclick="switchTab('tab-team')">
           <span class="nav-icon">🚀</span> Incubator
         </button>
-        <button class="nav-btn" data-tab="tab-terminal">
+        <button class="nav-btn" data-tab="tab-terminal" onclick="switchTab('tab-terminal')">
           <span class="nav-icon">💻</span> Terminal
         </button>
       </nav>
 
       <div class="header-actions">
-        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark/Aviato Theme">
+        <button id="theme-toggle" class="icon-btn" onclick="toggleTheme()" title="Toggle Light/Dark/Aviato Theme">
           <span id="theme-icon">☀️</span>
         </button>
-        <button id="sound-toggle" class="icon-btn" title="Toggle Sci-Fi Sound FX">
+        <button id="sound-toggle" class="icon-btn" onclick="toggleSound()" title="Toggle Sci-Fi Sound FX">
           <span id="sound-icon">🔊</span>
         </button>
-        <button id="cta-compress" class="btn-primary">
+        <button id="cta-compress" class="btn-primary" onclick="switchTab('tab-studio')">
           <span>Compress Data</span>
         </button>
       </div>
