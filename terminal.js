@@ -1,8 +1,17 @@
 /* ==========================================================================
-   PIED PIPER PRO - INTERACTIVE CLI TERMINAL (pp-cli v4.2)
+   PIEDPIPER PRO - ADVANCED CLI TERMINAL ENGINE (pp-cli v4.2)
    ========================================================================== */
 
 class PiedPiperTerminal {
+  constructor() {
+    this.history = [];
+    this.historyIndex = -1;
+    this.commandsList = [
+      'help', 'goto', 'theme', 'compress', 'sample', 'process', 'tree',
+      'hash', 'benchmark', 'nodes', 'status', 'sysinfo', 'history', 'clear'
+    ];
+  }
+
   getElements() {
     return {
       output: document.getElementById('term-output'),
@@ -18,8 +27,32 @@ class PiedPiperTerminal {
       if (e.key === 'Enter') {
         const commandLine = els.input.value.trim();
         if (commandLine) {
+          this.history.push(commandLine);
+          this.historyIndex = this.history.length;
           this.executeCommand(commandLine);
           els.input.value = '';
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (this.history.length > 0 && this.historyIndex > 0) {
+          this.historyIndex--;
+          els.input.value = this.history[this.historyIndex];
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (this.historyIndex < this.history.length - 1) {
+          this.historyIndex++;
+          els.input.value = this.history[this.historyIndex];
+        } else {
+          this.historyIndex = this.history.length;
+          els.input.value = '';
+        }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const current = els.input.value.trim().toLowerCase();
+        if (current) {
+          const match = this.commandsList.find(c => c.startsWith(current));
+          if (match) els.input.value = match + ' ';
         }
       }
     };
@@ -46,12 +79,66 @@ class PiedPiperTerminal {
 
     switch (cmd) {
       case 'help':
-        this.printLine(`Available Commands:`, 'accent-green');
-        this.printLine(`  <strong class="accent-yellow">compress &lt;text&gt;</strong>      - Run compression engine on text payload`);
-        this.printLine(`  <strong class="accent-yellow">status</strong>               - View engine and network health status`);
-        this.printLine(`  <strong class="accent-yellow">stats</strong>                - View system throughput metrics and memory usage`);
-        this.printLine(`  <strong class="accent-yellow">hash &lt;text&gt;</strong>        - Generate SHA-256 hash checksum`);
-        this.printLine(`  <strong class="accent-yellow">clear</strong>                - Clear terminal console screen`);
+        this.printLine(`📜 PiedPiper Pro CLI Command Reference:`, 'accent-green');
+        this.printLine(`  <strong class="accent-yellow">goto &lt;studio|engine|nodes|benchmark|sdk|terminal&gt;</strong> - Switch UI tab`);
+        this.printLine(`  <strong class="accent-yellow">theme &lt;dark|light|emerald&gt;</strong>                     - Switch UI color theme`);
+        this.printLine(`  <strong class="accent-yellow">compress &lt;text&gt;</strong>                                  - Run Middle-Out compression on text`);
+        this.printLine(`  <strong class="accent-yellow">sample</strong>                                           - Load sample dataset into File Studio`);
+        this.printLine(`  <strong class="accent-yellow">process</strong>                                          - Execute file studio multi-task pipeline`);
+        this.printLine(`  <strong class="accent-yellow">tree</strong>                                             - Render ASCII folder directory tree`);
+        this.printLine(`  <strong class="accent-yellow">benchmark &lt;code|json|media&gt;</strong>                      - Run Weissman benchmark suite`);
+        this.printLine(`  <strong class="accent-yellow">nodes &lt;status|add|ping|reset&gt;</strong>                    - Manage P2P network nodes`);
+        this.printLine(`  <strong class="accent-yellow">hash &lt;text&gt;</strong>                                      - Compute SHA-256 checksum hash`);
+        this.printLine(`  <strong class="accent-yellow">status / sysinfo</strong>                                 - Display system specs & status`);
+        this.printLine(`  <strong class="accent-yellow">history</strong>                                          - List command execution history`);
+        this.printLine(`  <strong class="accent-yellow">clear</strong>                                            - Clear console screen`);
+        break;
+
+      case 'goto':
+        if (!args) {
+          this.printLine(`Usage: goto &lt;studio|engine|nodes|benchmark|sdk|terminal&gt;`, 'accent-red');
+        } else {
+          const tabMap = {
+            'studio': 'tab-studio',
+            'engine': 'tab-middle-out',
+            'nodes': 'tab-depin',
+            'benchmark': 'tab-weissman',
+            'sdk': 'tab-sdk',
+            'terminal': 'tab-terminal'
+          };
+          const target = tabMap[args.toLowerCase()];
+          if (target && window.switchTab) {
+            window.switchTab(target);
+            this.printLine(`[NAVIGATION] Switched tab to '${args}'.`, 'accent-green');
+          } else {
+            this.printLine(`Unknown tab '${args}'. Available: studio, engine, nodes, benchmark, sdk, terminal.`, 'accent-red');
+          }
+        }
+        break;
+
+      case 'theme':
+        if (!args) {
+          this.printLine(`Usage: theme &lt;dark|light|emerald&gt;`, 'accent-red');
+        } else {
+          const themeName = args.toLowerCase();
+          const body = document.body;
+          const themeIcon = document.getElementById('theme-icon');
+          body.classList.remove('dark-theme', 'light-theme', 'emerald-theme');
+          body.setAttribute('data-current-theme', themeName);
+
+          if (themeName === 'light') {
+            body.classList.add('light-theme');
+            if (themeIcon) themeIcon.textContent = '🌙';
+          } else if (themeName === 'emerald') {
+            body.classList.add('emerald-theme');
+            if (themeIcon) themeIcon.textContent = '💎';
+          } else {
+            body.classList.add('dark-theme');
+            if (themeIcon) themeIcon.textContent = '☀️';
+          }
+          localStorage.setItem('pp_theme', themeName);
+          this.printLine(`[THEME] Switched UI theme to '${themeName}'.`, 'accent-green');
+        }
         break;
 
       case 'compress':
@@ -59,25 +146,85 @@ class PiedPiperTerminal {
           this.printLine(`Error: Usage: compress &lt;text payload&gt;`, 'accent-red');
         } else {
           const res = window.moEngine ? window.moEngine.compress(args) : { originalSize: args.length, compressedSize: Math.floor(args.length * 0.3), spaceSavedPercent: 70, weissmanScore: 5.2 };
-          this.printLine(`[COMPRESSION COMPLETED] Orig: ${res.originalSize}B → Comp: ${res.compressedSize}B (${res.spaceSavedPercent}% Saved | Weissman: ${res.weissmanScore}W)`, 'accent-green');
+          this.printLine(`[MIDDLE-OUT ENGINE] Compressed ${res.originalSize}B → ${res.compressedSize}B (${res.spaceSavedPercent}% Saved | Weissman: ${res.weissmanScore}W)`, 'accent-green');
         }
         break;
 
-      case 'status':
-        this.printLine(`Engine Status: <strong class="accent-green">Operational</strong> | Latency: 14ms | Data Loss: 0.00%`, 'accent-green');
+      case 'sample':
+        if (window.fileStudio) {
+          window.fileStudio.loadSample5TBDataset();
+          this.printLine(`[FILE STUDIO] Sample dataset loaded into attachment pipeline.`, 'accent-green');
+        }
         break;
 
-      case 'stats':
-        this.printLine(`Throughput: 3.4 GB/s | Active Buffer: 64 MB | CPU Usage: 4.2% | RAM: 128 MB`, 'accent-blue');
+      case 'process':
+        if (window.fileStudio) {
+          window.fileStudio.executeMultiTask();
+          this.printLine(`[FILE STUDIO] Pipeline execution started.`, 'accent-green');
+        }
+        break;
+
+      case 'tree':
+        this.printLine(`📂 dataset_cluster/`, 'accent-yellow');
+        this.printLine(`├── 🎬 raw_master_footage.mp4 (2.2 TB) [Compressed: 710 GB]`, 'accent-green');
+        this.printLine(`├── ⚙️ genomics_dna_dataset.bin (1.6 TB) [Compressed: 520 GB]`, 'accent-green');
+        this.printLine(`├── 📄 node_database.sql (1.1 TB) [Compressed: 340 GB]`, 'accent-green');
+        this.printLine(`└── ⚙️ model_weights.json (550 GB) [Compressed: 170 GB]`, 'accent-green');
+        this.printLine(`4 files, 1 directory | 0.00% Quality Loss`, 'accent-blue');
+        break;
+
+      case 'benchmark':
+        const type = args || 'code';
+        if (window.weissmanArena) {
+          window.weissmanArena.runBenchmark(type);
+          this.printLine(`[BENCHMARK] Executed benchmark suite for payload '${type}'. Check Benchmark Suite tab for full charts.`, 'accent-purple');
+        }
+        break;
+
+      case 'nodes':
+        const sub = args.toLowerCase();
+        if (sub === 'add' && window.piperNet) {
+          window.piperNet.addRandomNode();
+          this.printLine(`[DEPIN] Spawned new node into network map.`, 'accent-green');
+        } else if (sub === 'ping' && window.piperNet) {
+          window.piperNet.pulsePing();
+          this.printLine(`[DEPIN] Broadcasted ping pulses across all active nodes.`, 'accent-green');
+        } else if (sub === 'reset' && window.piperNet) {
+          window.piperNet.seedNodes();
+          this.printLine(`[DEPIN] Topology map reset to initial seed state.`, 'accent-yellow');
+        } else {
+          this.printLine(`PipedPiper DePIN: 14,892 Active Nodes | 5.2 PB Storage | 42,100 TFLOPS Compute`, 'accent-blue');
+        }
         break;
 
       case 'hash':
         if (!args) {
-          this.printLine(`Error: Usage: hash &lt;text&gt;`, 'accent-red');
+          this.printLine(`Usage: hash &lt;text payload&gt;`, 'accent-red');
         } else {
-          const fakeHash = Array.from(new TextEncoder().encode(args)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
-          this.printLine(`SHA-256 Checksum: <strong class="accent-yellow">0x${fakeHash}</strong>`, 'accent-green');
+          const bytes = new TextEncoder().encode(args);
+          let hashVal = 0;
+          for (let b of bytes) hashVal = (hashVal * 31 + b) % 4294967296;
+          const hex = hashVal.toString(16).padStart(8, '0');
+          this.printLine(`Adler32 / SHA-256 Checksum: <strong class="accent-yellow">0x${hex}9a4b2c1f...</strong>`, 'accent-green');
         }
+        break;
+
+      case 'status':
+      case 'sysinfo':
+        this.printLine(`📊 PiedPiper Pro System Information:`, 'accent-green');
+        this.printLine(`  • Version: <strong class="accent-yellow">v4.2.0-release (x86_64)</strong>`);
+        this.printLine(`  • Engine: <strong class="accent-yellow">Bi-Directional Middle-Out Neural Engine</strong>`);
+        this.printLine(`  • Average Weissman Score: <strong class="accent-yellow">5.84 W</strong>`);
+        this.printLine(`  • Throughput Speed: <strong class="accent-yellow">3.4 GB/s Multi-Threaded</strong>`);
+        this.printLine(`  • Data Integrity: <strong class="accent-yellow">100.00% (Zero Data Loss)</strong>`);
+        this.printLine(`  • Network P2P Compute: <strong class="accent-yellow">42,100 TFLOPS</strong>`);
+        break;
+
+      case 'history':
+        this.printLine(`Command Execution History:`, 'accent-yellow');
+        this.history.forEach((h, idx) => {
+          this.printLine(`  ${idx + 1}. ${h}`);
+        });
         break;
 
       case 'clear':
@@ -86,7 +233,7 @@ class PiedPiperTerminal {
         break;
 
       default:
-        this.printLine(`Command not recognized: '${cmd}'. Type '<strong class="accent-yellow">help</strong>' for commands.`, 'accent-red');
+        this.printLine(`Command not recognized: '${cmd}'. Type '<strong class="accent-yellow">help</strong>' for available CLI commands.`, 'accent-red');
         break;
     }
   }
