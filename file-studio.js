@@ -6,48 +6,51 @@ class UniversalFileStudio {
   constructor() {
     this.attachedItems = [];
     this.currentPPArchive = null;
+    this.isBound = false;
+  }
 
-    this.chipsContainer = document.getElementById('attached-chips-container');
-    this.btnExecute = document.getElementById('btn-send-chat-task');
-    this.btnSample5TB = document.getElementById('btn-sample-5tb');
-
-    this.progressBlock = document.getElementById('stream-progress-block');
-    this.progressBarFill = document.getElementById('progress-bar-fill');
-    this.progressText = document.getElementById('progress-status-text');
-    this.progressPercent = document.getElementById('progress-percent');
-    this.progChunks = document.getElementById('prog-chunks');
-
-    this.aiResultsBox = document.getElementById('ai-task-results-box');
-    this.aiSummaryText = document.getElementById('ai-summary-text');
-    this.treeWrapper = document.getElementById('compressed-tree-wrapper');
-    this.treeUl = document.getElementById('compressed-tree-ul');
-
-    this.viewerEl = document.getElementById('workspace-viewer');
-    this.controlsBar = document.getElementById('workspace-controls');
-
-    this.init();
+  getElements() {
+    return {
+      chipsContainer: document.getElementById('attached-chips-container'),
+      btnExecute: document.getElementById('btn-send-chat-task'),
+      btnSample5TB: document.getElementById('btn-sample-5tb'),
+      btnTriggerFiles: document.getElementById('btn-trigger-files'),
+      btnTriggerFolder: document.getElementById('btn-trigger-folder'),
+      inputFiles: document.getElementById('chat-attach-files'),
+      inputFolder: document.getElementById('chat-attach-folder'),
+      progressBlock: document.getElementById('stream-progress-block'),
+      progressBarFill: document.getElementById('progress-bar-fill'),
+      progressText: document.getElementById('progress-status-text'),
+      progressPercent: document.getElementById('progress-percent'),
+      progChunks: document.getElementById('prog-chunks'),
+      aiResultsBox: document.getElementById('ai-task-results-box'),
+      aiSummaryText: document.getElementById('ai-summary-text'),
+      treeWrapper: document.getElementById('compressed-tree-wrapper'),
+      treeUl: document.getElementById('compressed-tree-ul'),
+      viewerEl: document.getElementById('workspace-viewer'),
+      controlsBar: document.getElementById('workspace-controls'),
+      btnDownload: document.getElementById('btn-download-pp'),
+      btnExportWebsite: document.getElementById('btn-export-website')
+    };
   }
 
   init() {
-    const btnTriggerFiles = document.getElementById('btn-trigger-files');
-    const btnTriggerFolder = document.getElementById('btn-trigger-folder');
-    const inputFiles = document.getElementById('chat-attach-files');
-    const inputFolder = document.getElementById('chat-attach-folder');
+    const els = this.getElements();
 
-    if (btnTriggerFiles && inputFiles) {
-      btnTriggerFiles.addEventListener('click', () => inputFiles.click());
-      inputFiles.addEventListener('change', (e) => {
+    if (els.btnTriggerFiles && els.inputFiles) {
+      els.btnTriggerFiles.onclick = () => els.inputFiles.click();
+      els.inputFiles.onchange = (e) => {
         this.handleAttachFiles(e.target.files);
-        inputFiles.value = '';
-      });
+        els.inputFiles.value = '';
+      };
     }
 
-    if (btnTriggerFolder && inputFolder) {
-      btnTriggerFolder.addEventListener('click', () => inputFolder.click());
-      inputFolder.addEventListener('change', (e) => {
+    if (els.btnTriggerFolder && els.inputFolder) {
+      els.btnTriggerFolder.onclick = () => els.inputFolder.click();
+      els.inputFolder.onchange = (e) => {
         this.handleAttachFiles(e.target.files);
-        inputFolder.value = '';
-      });
+        els.inputFolder.value = '';
+      };
     }
 
     const chatWrapper = document.querySelector('.chat-upload-wrapper');
@@ -59,31 +62,31 @@ class UniversalFileStudio {
         }, false);
       });
 
-      chatWrapper.addEventListener('drop', (e) => {
+      chatWrapper.ondrop = (e) => {
         const files = e.dataTransfer.files;
         if (files && files.length > 0) {
           this.handleAttachFiles(files);
         }
-      });
+      };
     }
 
-    if (this.btnSample5TB) {
-      this.btnSample5TB.addEventListener('click', () => this.loadSample5TBDataset());
+    if (els.btnSample5TB) {
+      els.btnSample5TB.onclick = () => this.loadSample5TBDataset();
     }
 
-    if (this.btnExecute) {
-      this.btnExecute.addEventListener('click', () => this.executeMultiTask());
+    if (els.btnExecute) {
+      els.btnExecute.onclick = () => this.executeMultiTask();
     }
 
-    const btnDownload = document.getElementById('btn-download-pp');
-    if (btnDownload) {
-      btnDownload.addEventListener('click', () => this.downloadPPArchive());
+    if (els.btnDownload) {
+      els.btnDownload.onclick = () => this.downloadPPArchive();
     }
 
-    const btnExportWebsite = document.getElementById('btn-export-website');
-    if (btnExportWebsite) {
-      btnExportWebsite.addEventListener('click', () => this.exportToExternalWebsite());
+    if (els.btnExportWebsite) {
+      els.btnExportWebsite.onclick = () => this.exportToExternalWebsite();
     }
+
+    this.isBound = true;
   }
 
   handleAttachFiles(files) {
@@ -117,11 +120,12 @@ class UniversalFileStudio {
   }
 
   renderChips() {
-    if (!this.chipsContainer) return;
-    this.chipsContainer.innerHTML = '';
+    const els = this.getElements();
+    if (!els.chipsContainer) return;
+    els.chipsContainer.innerHTML = '';
 
     if (this.attachedItems.length === 0) {
-      this.chipsContainer.innerHTML = '<span class="chip-hint">No attachments yet. Click paperclip or folder button below to attach files or 5TB+ folders!</span>';
+      els.chipsContainer.innerHTML = '<span class="chip-hint">No attachments yet. Click paperclip or folder button below to attach files or 5TB+ folders!</span>';
       return;
     }
 
@@ -135,16 +139,16 @@ class UniversalFileStudio {
         <span>${icon} ${item.name} (${sizeStr})</span>
         <span class="chip-remove" data-idx="${idx}">×</span>
       `;
-      this.chipsContainer.appendChild(chip);
+      els.chipsContainer.appendChild(chip);
     });
 
-    const removes = this.chipsContainer.querySelectorAll('.chip-remove');
+    const removes = els.chipsContainer.querySelectorAll('.chip-remove');
     removes.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.onclick = (e) => {
         const idx = parseInt(e.target.getAttribute('data-idx'));
         this.attachedItems.splice(idx, 1);
         this.renderChips();
-      });
+      };
     });
   }
 
@@ -156,13 +160,13 @@ class UniversalFileStudio {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  // Real Multi-Task Processing & Compression Execution
-  async executeMultiTask() {
+  executeMultiTask() {
     if (this.attachedItems.length === 0) {
       alert('Please attach at least one file or folder first (or click "Load Sample 5TB Dataset").');
       return;
     }
 
+    const els = this.getElements();
     const doCompress = document.getElementById('task-compress') ? document.getElementById('task-compress').checked : true;
     const doTree = document.getElementById('task-tree') ? document.getElementById('task-tree').checked : true;
     const doPlayer = document.getElementById('task-player') ? document.getElementById('task-player').checked : true;
@@ -172,7 +176,7 @@ class UniversalFileStudio {
     this.attachedItems.forEach(i => totalBytes += i.size);
     const totalGB = Math.max(1, (totalBytes / (1024 * 1024 * 1024)).toFixed(0));
 
-    if (this.progressBlock) this.progressBlock.classList.remove('hidden');
+    if (els.progressBlock) els.progressBlock.classList.remove('hidden');
 
     let progress = 0;
     if (window.ppAudio) window.ppAudio.playCompressionSweep();
@@ -181,10 +185,10 @@ class UniversalFileStudio {
       progress += 10;
       if (progress > 100) progress = 100;
 
-      if (this.progressBarFill) this.progressBarFill.style.width = `${progress}%`;
-      if (this.progressPercent) this.progressPercent.textContent = `${progress}%`;
-      if (this.progressText) this.progressText.textContent = `Streaming Middle-Out Chunking: ${progress}%`;
-      if (this.progChunks) this.progChunks.textContent = `${((totalGB * progress) / 100).toFixed(0)} / ${totalGB} GB`;
+      if (els.progressBarFill) els.progressBarFill.style.width = `${progress}%`;
+      if (els.progressPercent) els.progressPercent.textContent = `${progress}%`;
+      if (els.progressText) els.progressText.textContent = `Streaming Middle-Out Chunking: ${progress}%`;
+      if (els.progChunks) els.progChunks.textContent = `${((totalGB * progress) / 100).toFixed(0)} / ${totalGB} GB`;
 
       if (progress >= 100) {
         clearInterval(interval);
@@ -194,6 +198,7 @@ class UniversalFileStudio {
   }
 
   finishMultiTask(doCompress, doTree, doPlayer, doExport, totalBytes) {
+    const els = this.getElements();
     const origStr = this.formatBytes(totalBytes);
     const savingsFactor = 0.318;
     const compBytes = Math.floor(totalBytes * savingsFactor);
@@ -210,10 +215,11 @@ class UniversalFileStudio {
       savings: savingsPercent
     };
 
-    if (this.aiResultsBox && this.aiSummaryText) {
-      this.aiResultsBox.classList.remove('hidden');
+    if (els.aiResultsBox && els.aiSummaryText) {
+      els.aiResultsBox.classList.remove('hidden');
 
-      const userPrompt = document.getElementById('chat-prompt-input').value.trim();
+      const chatInput = document.getElementById('chat-prompt-input');
+      const userPrompt = chatInput ? chatInput.value.trim() : '';
       const promptHeader = userPrompt ? `\n> User Prompt: "${userPrompt}"\n` : '';
 
       const text = `✅ LOSSLESS MIDDLE-OUT COMPRESSION COMPLETED${promptHeader}\n` +
@@ -223,7 +229,7 @@ class UniversalFileStudio {
         `• Reusable PC Formats: .pp (Pied Piper Archive), .zip (Standard PC Zip), .tar.gz (DePIN Server)\n` +
         `• Weissman Score Achieved: 5.84 W`;
 
-      this.aiSummaryText.textContent = text;
+      els.aiSummaryText.textContent = text;
     }
 
     if (doTree) {
@@ -243,9 +249,10 @@ class UniversalFileStudio {
   }
 
   renderDirectoryTree() {
-    if (!this.treeWrapper || !this.treeUl) return;
-    this.treeWrapper.classList.remove('hidden');
-    this.treeUl.innerHTML = '';
+    const els = this.getElements();
+    if (!els.treeWrapper || !els.treeUl) return;
+    els.treeWrapper.classList.remove('hidden');
+    els.treeUl.innerHTML = '';
 
     this.attachedItems.forEach((item) => {
       const li = document.createElement('li');
@@ -258,8 +265,8 @@ class UniversalFileStudio {
         <span style="color: var(--accent-green); font-weight: bold;">${sizeStr} [Compressed]</span>
       `;
 
-      li.addEventListener('click', () => {
-        const allItems = this.treeUl.querySelectorAll('.tree-item');
+      li.onclick = () => {
+        const allItems = els.treeUl.querySelectorAll('.tree-item');
         allItems.forEach(i => i.classList.remove('tree-item-active'));
         li.classList.add('tree-item-active');
 
@@ -268,15 +275,16 @@ class UniversalFileStudio {
         } else {
           this.renderSimulatedPlayer(item.name, 68.2);
         }
-      });
+      };
 
-      this.treeUl.appendChild(li);
+      els.treeUl.appendChild(li);
     });
   }
 
   renderSimulatedPlayer(archiveName, savingsPercent) {
-    if (!this.viewerEl) return;
-    this.viewerEl.innerHTML = `
+    const els = this.getElements();
+    if (!els.viewerEl) return;
+    els.viewerEl.innerHTML = `
       <div class="embedded-widget-preview" style="width: 100%;">
         <div class="widget-header">
           <span class="widget-logo">💚 PiedPiper In-Stream RAM Player</span>
@@ -293,23 +301,33 @@ class UniversalFileStudio {
             </div>
           </div>
           <div class="widget-controls">
-            <button class="btn-mini btn-glow" onclick="window.ppAudio && window.ppAudio.playSuccessChime()">▶ Play In-Memory Lossless Stream</button>
+            <button type="button" class="btn-mini btn-glow" id="btn-play-sim">▶ Play In-Memory Lossless Stream</button>
             <span class="widget-status-text">Playing from RAM</span>
           </div>
         </div>
       </div>
     `;
 
-    if (this.controlsBar) {
-      this.controlsBar.classList.remove('hidden');
-      document.getElementById('arch-name').textContent = archiveName;
-      document.getElementById('arch-savings').textContent = `Saved ${savingsPercent}% Losslessly`;
+    const btnPlaySim = document.getElementById('btn-play-sim');
+    if (btnPlaySim) {
+      btnPlaySim.onclick = () => {
+        if (window.ppAudio) window.ppAudio.playSuccessChime();
+      };
+    }
+
+    if (els.controlsBar) {
+      els.controlsBar.classList.remove('hidden');
+      const archName = document.getElementById('arch-name');
+      const archSav = document.getElementById('arch-savings');
+      if (archName) archName.textContent = archiveName;
+      if (archSav) archSav.textContent = `Saved ${savingsPercent}% Losslessly`;
     }
   }
 
   renderLosslessViewer(file, archiveName, savingsPercent) {
-    if (!this.viewerEl) return;
-    this.viewerEl.innerHTML = '';
+    const els = this.getElements();
+    if (!els.viewerEl) return;
+    els.viewerEl.innerHTML = '';
 
     const type = file.type;
     const name = file.name.toLowerCase();
@@ -318,19 +336,19 @@ class UniversalFileStudio {
       const img = document.createElement('img');
       img.className = 'media-preview-img';
       img.src = URL.createObjectURL(file);
-      this.viewerEl.appendChild(img);
+      els.viewerEl.appendChild(img);
     } else if (type.startsWith('audio/') || name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.ogg')) {
       const audio = document.createElement('audio');
       audio.className = 'media-preview-audio';
       audio.controls = true;
       audio.src = URL.createObjectURL(file);
-      this.viewerEl.appendChild(audio);
+      els.viewerEl.appendChild(audio);
     } else if (type.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.webm')) {
       const video = document.createElement('video');
       video.className = 'media-preview-video';
       video.controls = true;
       video.src = URL.createObjectURL(file);
-      this.viewerEl.appendChild(video);
+      els.viewerEl.appendChild(video);
     } else {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -339,19 +357,20 @@ class UniversalFileStudio {
         pre.className = 'code-preview';
         pre.style.maxHeight = '240px';
         pre.textContent = text.slice(0, 2000) + (text.length > 2000 ? '\n... [Truncated preview]' : '');
-        this.viewerEl.appendChild(pre);
+        els.viewerEl.appendChild(pre);
       };
       reader.readAsText(file);
     }
 
-    if (this.controlsBar) {
-      this.controlsBar.classList.remove('hidden');
-      document.getElementById('arch-name').textContent = archiveName;
-      document.getElementById('arch-savings').textContent = `Saved ${savingsPercent}% Losslessly`;
+    if (els.controlsBar) {
+      els.controlsBar.classList.remove('hidden');
+      const archName = document.getElementById('arch-name');
+      const archSav = document.getElementById('arch-savings');
+      if (archName) archName.textContent = archiveName;
+      if (archSav) archSav.textContent = `Saved ${savingsPercent}% Losslessly`;
     }
   }
 
-  // Generate Real Client-Side ZIP / PP File Download for PC
   async downloadPPArchive() {
     if (!this.currentPPArchive) return;
 
@@ -360,12 +379,9 @@ class UniversalFileStudio {
     const downloadFileName = this.currentPPArchive.name.replace(/\.pp$/, '') + '.' + formatExt;
 
     let blob;
-
     if (formatExt === 'zip' && this.attachedItems.some(i => i.fileObj)) {
-      // Build real ZIP archive from attached files
       blob = await this.buildRealZipBlob();
     } else {
-      // Build Pied Piper Native .pp binary manifest blob
       const headerText = `[PIED_PIPER_v4.2_LOSSLESS_ARCHIVE]\n` +
         `File Name: ${downloadFileName}\n` +
         `Original Size: ${this.formatBytes(this.currentPPArchive.origSize)}\n` +
@@ -389,7 +405,6 @@ class UniversalFileStudio {
     URL.revokeObjectURL(url);
   }
 
-  // Pure JavaScript Client-Side ZIP File Generator
   async buildRealZipBlob() {
     const fileEntries = [];
     for (let item of this.attachedItems) {
@@ -406,7 +421,6 @@ class UniversalFileStudio {
       return new Blob(["Pied Piper Archive"], { type: 'application/zip' });
     }
 
-    // Single or multi-file raw zip concatenation
     const blobParts = [];
     fileEntries.forEach(entry => {
       blobParts.push(entry.bytes);
