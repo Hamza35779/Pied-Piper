@@ -63,7 +63,7 @@
       </nav>
 
       <div class="header-actions">
-        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Theme">
+        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark/Aviato Theme">
           <span id="theme-icon">☀️</span>
         </button>
         <button id="sound-toggle" class="icon-btn" title="Toggle Sci-Fi Sound FX">
@@ -135,23 +135,28 @@
               <div id="mo-tree-overlay" class="canvas-overlay-text">Click 'Run Middle-Out Compression' to see live bi-directional tree execution</div>
             </div>
 
-            <!-- Compression Metrics Cards -->
-            <div class="metrics-grid">
-              <div class="metric-box">
-                <span class="metric-label">Original Size</span>
-                <span id="m-orig-size" class="metric-val">0 B</span>
+            <!-- Compression Metrics Cards & Speedometer Gauge -->
+            <div class="metrics-gauge-container">
+              <div class="gauge-box">
+                <canvas id="mo-speedometer-canvas" width="220" height="130"></canvas>
               </div>
-              <div class="metric-box">
-                <span class="metric-label">Compressed Size</span>
-                <span id="m-comp-size" class="metric-val accent-green">0 B</span>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">Space Saved</span>
-                <span id="m-savings" class="metric-val accent-blue">0.0%</span>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">Weissman Score</span>
-                <span id="m-weissman" class="metric-val accent-purple">0.00 W</span>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="metric-label">Original Size</span>
+                  <span id="m-orig-size" class="metric-val">0 B</span>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Compressed Size</span>
+                  <span id="m-comp-size" class="metric-val accent-green">0 B</span>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Space Saved</span>
+                  <span id="m-savings" class="metric-val accent-blue">0.0%</span>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Weissman Score</span>
+                  <span id="m-weissman" class="metric-val accent-purple">0.00 W</span>
+                </div>
               </div>
             </div>
 

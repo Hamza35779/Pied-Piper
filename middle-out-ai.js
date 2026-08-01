@@ -107,7 +107,62 @@ class MiddleOutAIEngine {
     };
   }
 
+  renderSpeedometer(speedGBs = 3.4) {
+    const canvas = document.getElementById('mo-speedometer-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const cx = w / 2;
+    const cy = h - 20;
+    const r = 70;
+
+    // Draw Gauge Arc (Semi-circle)
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, Math.PI * 2);
+    ctx.stroke();
+
+    // Active Colored Arc (Gradient)
+    const activePercent = Math.min(1, speedGBs / 5.0);
+    const endAngle = Math.PI + (Math.PI * activePercent);
+
+    ctx.strokeStyle = '#00E676';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, endAngle);
+    ctx.stroke();
+
+    // Needle
+    const needleAngle = Math.PI + (Math.PI * activePercent);
+    const nx = cx + (r - 10) * Math.cos(needleAngle);
+    const ny = cy + (r - 10) * Math.sin(needleAngle);
+
+    ctx.strokeStyle = '#FF1744';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(nx, ny);
+    ctx.stroke();
+
+    // Center Pivot
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Text Label
+    ctx.fillStyle = '#00E676';
+    ctx.font = 'bold 13px "Fira Code", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${speedGBs.toFixed(1)} GB/s`, cx, cy - 25);
+  }
+
   renderTreeAnimation(inputText) {
+    this.renderSpeedometer(3.4);
     const { canvas, ctx } = this.getCanvas();
     if (!canvas || !ctx) return;
 

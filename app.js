@@ -31,18 +31,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Theme Toggle (Light / Dark Mode with Persistence)
+  // Theme Toggle (Dark / Light / Aviato Mode)
   const themeToggle = document.getElementById('theme-toggle');
   const themeIcon = document.getElementById('theme-icon');
   
   const applyTheme = (theme) => {
     const body = document.body;
+    body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
+    
     if (theme === 'light') {
-      body.classList.remove('dark-theme');
       body.classList.add('light-theme');
       if (themeIcon) themeIcon.textContent = '🌙';
+    } else if (theme === 'aviato') {
+      body.classList.add('aviato-theme');
+      if (themeIcon) themeIcon.textContent = '✈️';
     } else {
-      body.classList.remove('light-theme');
       body.classList.add('dark-theme');
       if (themeIcon) themeIcon.textContent = '☀️';
     }
@@ -53,8 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-      const isDark = document.body.classList.contains('dark-theme');
-      const newTheme = isDark ? 'light' : 'dark';
+      const body = document.body;
+      let newTheme = 'dark';
+
+      if (body.classList.contains('dark-theme')) {
+        newTheme = 'light';
+      } else if (body.classList.contains('light-theme')) {
+        newTheme = 'aviato';
+      } else {
+        newTheme = 'dark';
+      }
+
       localStorage.setItem('pp_theme', newTheme);
       applyTheme(newTheme);
       if (window.ppAudio) window.ppAudio.playClick();
