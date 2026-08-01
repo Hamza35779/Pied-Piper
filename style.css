@@ -53,47 +53,47 @@ body.dark-theme {
   overflow-x: hidden;
 }
 
-body.aviato-theme {
-  --bg-dark: #0A121D;
-  --bg-card: rgba(16, 28, 44, 0.85);
-  --bg-card-hover: rgba(24, 40, 64, 0.9);
-  --border-glass: rgba(255, 179, 0, 0.25);
-  --border-glow: rgba(255, 179, 0, 0.4);
+body.emerald-theme {
+  --bg-dark: #061512;
+  --bg-card: rgba(10, 28, 24, 0.85);
+  --bg-card-hover: rgba(16, 40, 34, 0.9);
+  --border-glass: rgba(0, 230, 118, 0.25);
+  --border-glow: rgba(0, 230, 118, 0.4);
 
-  --accent-green: #FFB300;
-  --accent-green-dark: #FF8F00;
+  --accent-green: #00E676;
+  --accent-green-dark: #00B248;
   --accent-blue: #00E5FF;
-  --accent-purple: #E040FB;
+  --accent-purple: #B388FF;
   --accent-yellow: #FFD600;
-  --accent-red: #FF3D00;
+  --accent-red: #FF1744;
 
-  --text-main: #FFF8E1;
-  --text-muted: #FFE082;
-  --text-dim: #FFCA28;
+  --text-main: #E0F2FE;
+  --text-muted: #A7F3D0;
+  --text-dim: #6EE7B7;
 
-  background-color: #0A121D;
-  color: #FFF8E1;
+  background-color: #061512;
+  color: #E0F2FE;
   font-family: var(--font-main);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-image: 
-    radial-gradient(circle at 15% 20%, rgba(255, 179, 0, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 70%, rgba(0, 229, 255, 0.08) 0%, transparent 45%);
+    radial-gradient(circle at 15% 20%, rgba(0, 230, 118, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 85% 70%, rgba(0, 229, 255, 0.1) 0%, transparent 45%);
   background-attachment: fixed;
   overflow-x: hidden;
 }
 
-body.aviato-theme .nav-btn.active {
-  background: linear-gradient(135deg, #FFB300, #FF8F00);
+body.emerald-theme .nav-btn.active {
+  background: linear-gradient(135deg, #00E676, #00B248);
   color: #000;
-  box-shadow: 0 0 15px rgba(255, 179, 0, 0.4);
+  box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
 }
 
-body.aviato-theme .v-badge {
-  background: rgba(255, 179, 0, 0.2);
-  color: #FFB300;
-  border-color: #FFB300;
+body.emerald-theme .v-badge {
+  background: rgba(0, 230, 118, 0.2);
+  color: #00E676;
+  border-color: #00E676;
 }
 
 /* Speedometer Gauge Layout */

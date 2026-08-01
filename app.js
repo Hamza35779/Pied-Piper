@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PIED PIPER - MAIN APPLICATION ORCHESTRATOR & GLOBAL EVENT HANDLERS
+   PIED PIPER PRO - MAIN APPLICATION ORCHESTRATOR & GLOBAL EVENT HANDLERS
    ========================================================================== */
 
 // Global Fail-Safe Tab Switcher
@@ -35,27 +35,27 @@ window.switchTab = function(tabId) {
   if (tabId === 'tab-terminal' && window.ppTerminal) window.ppTerminal.init();
 };
 
-// Global Fail-Safe Theme Toggle (Dark -> Light -> Aviato -> Dark)
+// Global Fail-Safe Theme Toggle (Dark -> Light -> Emerald -> Dark)
 window.toggleTheme = function() {
   const body = document.body;
   const themeIcon = document.getElementById('theme-icon');
 
-  let current = body.getAttribute('data-current-theme') || (body.classList.contains('light-theme') ? 'light' : (body.classList.contains('aviato-theme') ? 'aviato' : 'dark'));
+  let current = body.getAttribute('data-current-theme') || (body.classList.contains('light-theme') ? 'light' : (body.classList.contains('emerald-theme') ? 'emerald' : 'dark'));
   let newTheme = 'dark';
 
   if (current === 'dark') newTheme = 'light';
-  else if (current === 'light') newTheme = 'aviato';
+  else if (current === 'light') newTheme = 'emerald';
   else newTheme = 'dark';
 
-  body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
+  body.classList.remove('dark-theme', 'light-theme', 'emerald-theme');
   body.setAttribute('data-current-theme', newTheme);
 
   if (newTheme === 'light') {
     body.classList.add('light-theme');
     if (themeIcon) themeIcon.textContent = '🌙';
-  } else if (newTheme === 'aviato') {
-    body.classList.add('aviato-theme');
-    if (themeIcon) themeIcon.textContent = '✈️';
+  } else if (newTheme === 'emerald') {
+    body.classList.add('emerald-theme');
+    if (themeIcon) themeIcon.textContent = '💎';
   } else {
     body.classList.add('dark-theme');
     if (themeIcon) themeIcon.textContent = '☀️';
@@ -79,15 +79,15 @@ const initPiedPiperApp = () => {
   const savedTheme = localStorage.getItem('pp_theme') || 'dark';
   const body = document.body;
   const themeIcon = document.getElementById('theme-icon');
-  body.classList.remove('dark-theme', 'light-theme', 'aviato-theme');
+  body.classList.remove('dark-theme', 'light-theme', 'emerald-theme');
   body.setAttribute('data-current-theme', savedTheme);
 
   if (savedTheme === 'light') {
     body.classList.add('light-theme');
     if (themeIcon) themeIcon.textContent = '🌙';
-  } else if (savedTheme === 'aviato') {
-    body.classList.add('aviato-theme');
-    if (themeIcon) themeIcon.textContent = '✈️';
+  } else if (savedTheme === 'emerald') {
+    body.classList.add('emerald-theme');
+    if (themeIcon) themeIcon.textContent = '💎';
   } else {
     body.classList.add('dark-theme');
     if (themeIcon) themeIcon.textContent = '☀️';
@@ -187,10 +187,10 @@ const initPiedPiperApp = () => {
       let sampleText = "";
       if (type === 'json') {
         sampleText = JSON.stringify({
-          app: "PiedPiper",
+          app: "PiedPiper Pro",
           version: "4.2.0",
           nodes: 14892,
-          algorithm: "Middle-Out Neural",
+          algorithm: "Middle-Out Lossless",
           entropy_reduction: 0.88,
           dataset: Array.from({length: 10}, (_, i) => ({ id: i, hash: `0x${i*49281a}` }))
         }, null, 2);
@@ -204,9 +204,9 @@ const initPiedPiperApp = () => {
   return assemblePiperStream(dictionary);
 }`;
       } else if (type === 'ai') {
-        sampleText = `You are Pied Piper AI. Compress this high-dimensional context vector token payload from 128,000 tokens down to 12,000 tokens without losing any semantic memory or lossy attention quality.`;
+        sampleText = `High-dimensional context vector token payload. Compress from 128,000 tokens down to 12,000 tokens without losing any semantic memory or lossy attention quality.`;
       } else if (type === 'hooli') {
-        sampleText = `HOOLI_NUCLEUS_INTERNAL_SECRET: Project Nucleus is failing. We copied Pied Piper's algorithm from TechCrunch Disrupt demo, but our single-directional compression causes 400ms latency spikes and memory leaks.`;
+        sampleText = `ENTERPRISE_SYSTEM_LOG: Pipeline verification successful. Middle-out compression engine achieved 3.18x compression ratio on unstructured log files with zero data loss.`;
       }
 
       if (inputTextMO) inputTextMO.value = sampleText;
@@ -249,33 +249,6 @@ const initPiedPiperApp = () => {
       navigator.clipboard.writeText(streamText);
       btnCopyMO.textContent = 'Copied!';
       setTimeout(() => btnCopyMO.textContent = 'Copy Stream', 2000);
-    };
-  }
-
-  // Footer Easter Egg Links
-  const linkHooli = document.getElementById('link-hooli-alert');
-  const linkAlwaysBlue = document.getElementById('link-always-blue');
-  const linkWeissmanDocs = document.getElementById('link-weissman-docs');
-
-  if (linkHooli) {
-    linkHooli.onclick = (e) => {
-      e.preventDefault();
-      alert('⚠️ HOOLI ALERT: Hooli Nucleus 2.0 has been officially canceled by Gavin Belson following disastrous Weissman score benchmarks!');
-    };
-  }
-
-  if (linkAlwaysBlue) {
-    linkAlwaysBlue.onclick = (e) => {
-      e.preventDefault();
-      if (window.ppAudio) window.ppAudio.playSuccessChime();
-      alert('🔵 ALWAYS BLUE! ALWAYS BLUE! ALWAYS BLUE!');
-    };
-  }
-
-  if (linkWeissmanDocs) {
-    linkWeissmanDocs.onclick = (e) => {
-      e.preventDefault();
-      window.switchTab('tab-weissman');
     };
   }
 
