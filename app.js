@@ -2,13 +2,14 @@
    PIED PIPER - MAIN APPLICATION ORCHESTRATOR & EVENT BINDINGS
    ========================================================================== */
 
-document.addEventListener('DOMContentLoaded', () => {
+const initPiedPiperApp = () => {
   // Init Tab Navigation
   const navBtns = document.querySelectorAll('.nav-btn');
   const tabContents = document.querySelectorAll('.tab-content');
 
   navBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.onclick = (e) => {
+      e.preventDefault();
       const targetTabId = btn.getAttribute('data-tab');
 
       navBtns.forEach(b => b.classList.remove('active'));
@@ -27,8 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.weissmanArena.runBenchmark('code');
       } else if (targetTabId === 'tab-studio' && window.fileStudio) {
         window.fileStudio.init();
+      } else if (targetTabId === 'tab-sdk' && window.sdkIntegration) {
+        window.sdkIntegration.init();
+      } else if (targetTabId === 'tab-terminal' && window.ppTerminal) {
+        window.ppTerminal.init();
       }
-    });
+    };
   });
 
   // Theme Toggle (Dark / Light / Aviato Mode)
@@ -55,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(savedTheme);
 
   if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
+    themeToggle.onclick = (e) => {
+      e.preventDefault();
       const body = document.body;
       let newTheme = 'dark';
 
@@ -70,37 +76,40 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('pp_theme', newTheme);
       applyTheme(newTheme);
       if (window.ppAudio) window.ppAudio.playClick();
-    });
+    };
   }
 
   // Sound FX Toggle
   const soundBtn = document.getElementById('sound-toggle');
   const soundIcon = document.getElementById('sound-icon');
   if (soundBtn && soundIcon) {
-    soundBtn.addEventListener('click', () => {
+    soundBtn.onclick = (e) => {
+      e.preventDefault();
       if (window.ppAudio) {
         const isMuted = window.ppAudio.toggleMute();
         soundIcon.textContent = isMuted ? '🔇' : '🔊';
       }
-    });
+    };
   }
 
-  // Header Logo click -> Switch to first tab
+  // Header Logo click -> Switch to middle-out tab
   const logoBtn = document.getElementById('logo-btn');
   if (logoBtn) {
-    logoBtn.addEventListener('click', () => {
-      const firstNav = document.querySelector('.nav-btn[data-tab="tab-middle-out"]');
-      if (firstNav) firstNav.click();
-    });
+    logoBtn.onclick = (e) => {
+      e.preventDefault();
+      const moNav = document.querySelector('.nav-btn[data-tab="tab-middle-out"]');
+      if (moNav) moNav.click();
+    };
   }
 
   // CTA Compress -> Switch to File Studio tab
   const ctaCompress = document.getElementById('cta-compress');
   if (ctaCompress) {
-    ctaCompress.addEventListener('click', () => {
+    ctaCompress.onclick = (e) => {
+      e.preventDefault();
       const studioNav = document.querySelector('.nav-btn[data-tab="tab-studio"]');
       if (studioNav) studioNav.click();
-    });
+    };
   }
 
   // Middle-Out AI Engine Controls
@@ -111,7 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chkBiDir = document.getElementById('chk-bidirectional');
 
   if (btnRunMO && inputTextMO) {
-    btnRunMO.addEventListener('click', () => {
+    btnRunMO.onclick = (e) => {
+      e.preventDefault();
       const text = inputTextMO.value;
       if (!text || text.trim().length === 0) {
         alert('Please enter or select a text payload to compress.');
@@ -143,11 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       window.moEngine.renderTreeAnimation(text);
       if (window.ppAudio) window.ppAudio.playCompressionSweep();
-    });
+    };
   }
 
   if (btnResetMO && inputTextMO) {
-    btnResetMO.addEventListener('click', () => {
+    btnResetMO.onclick = (e) => {
+      e.preventDefault();
       inputTextMO.value = '';
       const elOrig = document.getElementById('m-orig-size');
       const elComp = document.getElementById('m-comp-size');
@@ -174,14 +185,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const overlay = document.getElementById('mo-tree-overlay');
       if (overlay) overlay.style.display = 'block';
-    });
+    };
   }
 
   // Preset sample loader buttons
   const presetBtns = document.querySelectorAll('.preset-btn');
   presetBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const type = e.target.getAttribute('data-sample');
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const type = btn.getAttribute('data-sample');
       let sampleText = "";
       if (type === 'json') {
         sampleText = JSON.stringify({
@@ -209,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (inputTextMO) inputTextMO.value = sampleText;
       if (window.ppAudio) window.ppAudio.playClick();
-    });
+    };
   });
 
   // DePIN Controls
@@ -218,36 +230,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnClearNodes = document.getElementById('btn-clear-nodes');
   const sliderTraffic = document.getElementById('slider-traffic');
 
-  if (btnAddNode) btnAddNode.addEventListener('click', () => window.piperNet.addRandomNode());
-  if (btnPingAll) btnPingAll.addEventListener('click', () => window.piperNet.pulsePing());
-  if (btnClearNodes) btnClearNodes.addEventListener('click', () => window.piperNet.seedNodes());
+  if (btnAddNode) btnAddNode.onclick = () => window.piperNet && window.piperNet.addRandomNode();
+  if (btnPingAll) btnPingAll.onclick = () => window.piperNet && window.piperNet.pulsePing();
+  if (btnClearNodes) btnClearNodes.onclick = () => window.piperNet && window.piperNet.seedNodes();
 
   if (sliderTraffic) {
-    sliderTraffic.addEventListener('input', (e) => {
+    sliderTraffic.oninput = (e) => {
       const lblTraffic = document.getElementById('lbl-traffic');
       if (lblTraffic) lblTraffic.textContent = `${e.target.value}%`;
-      window.piperNet.setTrafficLoad(parseInt(e.target.value));
-    });
+      if (window.piperNet) window.piperNet.setTrafficLoad(parseInt(e.target.value));
+    };
   }
 
   // Weissman Arena Controls
   const btnBenchmark = document.getElementById('btn-run-benchmark');
   const selBenchmark = document.getElementById('sel-benchmark-payload');
   if (btnBenchmark && selBenchmark) {
-    btnBenchmark.addEventListener('click', () => {
-      window.weissmanArena.runBenchmark(selBenchmark.value);
-    });
+    btnBenchmark.onclick = () => {
+      if (window.weissmanArena) window.weissmanArena.runBenchmark(selBenchmark.value);
+    };
   }
 
   // Copy MO Stream button
   const btnCopyMO = document.getElementById('btn-copy-mo');
   if (btnCopyMO) {
-    btnCopyMO.addEventListener('click', () => {
+    btnCopyMO.onclick = () => {
       const streamText = document.getElementById('mo-output-stream').textContent;
       navigator.clipboard.writeText(streamText);
       btnCopyMO.textContent = 'Copied!';
       setTimeout(() => btnCopyMO.textContent = 'Copy Stream', 2000);
-    });
+    };
   }
 
   // Footer Easter Egg Links
@@ -256,63 +268,70 @@ document.addEventListener('DOMContentLoaded', () => {
   const linkWeissmanDocs = document.getElementById('link-weissman-docs');
 
   if (linkHooli) {
-    linkHooli.addEventListener('click', (e) => {
+    linkHooli.onclick = (e) => {
       e.preventDefault();
       alert('⚠️ HOOLI ALERT: Hooli Nucleus 2.0 has been officially canceled by Gavin Belson following disastrous Weissman score benchmarks!');
-    });
+    };
   }
 
   if (linkAlwaysBlue) {
-    linkAlwaysBlue.addEventListener('click', (e) => {
+    linkAlwaysBlue.onclick = (e) => {
       e.preventDefault();
       if (window.ppAudio) window.ppAudio.playSuccessChime();
       alert('🔵 ALWAYS BLUE! ALWAYS BLUE! ALWAYS BLUE!');
-    });
+    };
   }
 
   if (linkWeissmanDocs) {
-    linkWeissmanDocs.addEventListener('click', (e) => {
+    linkWeissmanDocs.onclick = (e) => {
       e.preventDefault();
       const tabWeissman = document.querySelector('.nav-btn[data-tab="tab-weissman"]');
       if (tabWeissman) tabWeissman.click();
-    });
+    };
   }
 
-  // Load default preset into Middle-Out text box
-  const firstPreset = document.querySelector('.preset-btn[data-sample="json"]');
-  if (firstPreset) firstPreset.click();
-
-  // Initial call and direct listener binding for file studio
+  // Direct File Studio Bindings
   const btnSample = document.getElementById('btn-sample-5tb');
   const btnExecute = document.getElementById('btn-send-chat-task');
   const inputFiles = document.getElementById('chat-attach-files');
   const inputFolder = document.getElementById('chat-attach-folder');
 
   if (inputFiles) {
-    inputFiles.addEventListener('change', (e) => {
+    inputFiles.onchange = (e) => {
       if (window.fileStudio) window.fileStudio.handleAttachFiles(e.target.files);
       inputFiles.value = '';
-    });
+    };
   }
 
   if (inputFolder) {
-    inputFolder.addEventListener('change', (e) => {
+    inputFolder.onchange = (e) => {
       if (window.fileStudio) window.fileStudio.handleAttachFiles(e.target.files);
       inputFolder.value = '';
-    });
+    };
   }
 
   if (btnSample) {
-    btnSample.addEventListener('click', () => {
+    btnSample.onclick = (e) => {
+      e.preventDefault();
       if (window.fileStudio) window.fileStudio.loadSample5TBDataset();
-    });
+    };
   }
 
   if (btnExecute) {
-    btnExecute.addEventListener('click', () => {
+    btnExecute.onclick = (e) => {
+      e.preventDefault();
       if (window.fileStudio) window.fileStudio.executeMultiTask();
-    });
+    };
   }
 
+  // Sub-system initializations
   if (window.fileStudio) window.fileStudio.init();
-});
+  if (window.sdkIntegration) window.sdkIntegration.init();
+  if (window.ppTerminal) window.ppTerminal.init();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPiedPiperApp);
+} else {
+  initPiedPiperApp();
+}

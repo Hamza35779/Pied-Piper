@@ -4,125 +4,121 @@
 
 class PiedPiperSDKIntegration {
   constructor() {
-    this.codeBlock = document.getElementById('sdk-code-block');
     this.currentLang = 'js';
-    this.init();
+  }
+
+  getElements() {
+    return {
+      codeBlock: document.getElementById('sdk-code-block'),
+      btnCopy: document.getElementById('btn-copy-sdk'),
+      tabs: document.querySelectorAll('.sdk-tab-btn')
+    };
   }
 
   init() {
-    const tabs = document.querySelectorAll('.sdk-tab-btn');
-    tabs.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        tabs.forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        this.currentLang = e.target.getAttribute('data-lang');
+    const els = this.getElements();
+
+    els.tabs.forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        els.tabs.forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentLang = btn.getAttribute('data-lang');
         this.renderSnippet();
         if (window.ppAudio) window.ppAudio.playClick();
-      });
+      };
     });
 
-    const btnCopy = document.getElementById('btn-copy-sdk');
-    if (btnCopy) {
-      btnCopy.addEventListener('click', () => {
-        if (this.codeBlock) {
-          navigator.clipboard.writeText(this.codeBlock.textContent);
-          btnCopy.textContent = '✅ Copied!';
-          setTimeout(() => btnCopy.textContent = '📋 Copy Code Snippet', 2000);
+    if (els.btnCopy) {
+      els.btnCopy.onclick = (e) => {
+        e.preventDefault();
+        const codeEl = document.getElementById('sdk-code-block');
+        if (codeEl) {
+          navigator.clipboard.writeText(codeEl.textContent);
+          els.btnCopy.textContent = '✅ Copied!';
+          setTimeout(() => els.btnCopy.textContent = '📋 Copy Code Snippet', 2000);
         }
-      });
-    }
-
-    const widgetPlayBtn = document.getElementById('widget-play-btn');
-    if (widgetPlayBtn) {
-      widgetPlayBtn.addEventListener('click', () => {
-        const statusText = document.getElementById('widget-status');
-        if (statusText) statusText.textContent = '▶ Playing Stream (Lossless)';
-        if (window.ppAudio) window.ppAudio.playSuccessChime();
-      });
+      };
     }
 
     this.renderSnippet();
   }
 
-  renderSnippet() {
-    if (!this.codeBlock) return;
-
-    let snippet = "";
-    switch (this.currentLang) {
-      case 'js':
-        snippet = `// Pied Piper JavaScript SDK Integration
-import { PiedPiper } from '@piedpiper/sdk';
-
-const pp = new PiedPiper({
-  apiKey: 'pp_live_9482abcdef104928',
-  neuralMode: true,
-  biDirectional: true
-});
-
-// Compress raw data stream or file losslessly
-const { compressedStream, weissmanScore } = await pp.compressStream(fileBuffer, {
-  onProgress: (percent) => console.log(\`Compressed: \${percent}%\`)
-});
-
-// Play in-stream lossless media
-pp.createPlayer('#player-container', compressedStream);`;
-        break;
-
+  getSnippet(lang) {
+    switch (lang) {
       case 'react':
-        snippet = `// Pied Piper React Component Integration
-import React from 'react';
-import { PiedPiperPlayer, useMiddleOut } from '@piedpiper/react';
+        return `import { PiedPiperCompressor, PiedPiperPlayer } from '@piedpiper/react';
 
-export function MediaViewer({ streamUrl }) {
-  const { compress, isCompressing, weissman } = useMiddleOut();
+export default function App() {
+  const handleCompress = async (files) => {
+    const stream = await PiedPiperCompressor.compressStream(files, {
+      algorithm: 'middle-out-v4.2',
+      lossless: true,
+      depinReplication: 3
+    });
+    console.log('Weissman Score:', stream.weissmanScore); // 5.84W
+  };
 
   return (
-    <div className="player-wrapper">
-      <PiedPiperPlayer 
-        src={streamUrl} 
-        theme="dark" 
-        lossless={true}
-        onPlay={() => console.log('Playing in-stream lossless data')} 
-      />
-      <button onClick={() => compress(streamUrl)}>Compress Stream ({weissman}W)</button>
+    <div>
+      <PiedPiperCompressor onCompress={handleCompress} />
+      <PiedPiperPlayer src="https://pipernet.io/stream/8k-video.pp" />
     </div>
   );
 }`;
-        break;
 
       case 'python':
-        snippet = `# Pied Piper Python Platform Integration
-import piedpiper as pp
+        return `import piedpiper as pp
 
-# Initialize Middle-Out AI client
-client = pp.Client(api_key="pp_live_9482abcdef104928")
+# Initialize Middle-Out Engine
+client = pp.Client(api_key="pp_live_middle_out_v42_secret")
 
-# Compress multi-format file or directory
+# Compress 5TB Enterprise Directory
 archive = client.compress_directory(
-    path="./my_dataset",
-    output="dataset.pp",
-    neural_token_reduction=True
+    path="/data/enterprise_cluster_5tb/",
+    lossless=True,
+    target_weissman=5.84
 )
 
-print(f"Weissman Score: {archive.weissman_score}W | Saved: {archive.savings_percent}%")`;
-        break;
+print(f"Original: {archive.orig_gb} GB | Compressed: {archive.comp_gb} GB")
+print(f"Space Saved: {archive.space_saved_percent}% | Zero Data Loss!")
+archive.export_to_pc("./output_archive.pp")`;
 
       case 'curl':
-        snippet = `# Pied Piper REST API - Compress Payload Endpoint
-curl -X POST https://api.piedpiper.com/v1/compress \\
-  -H "Authorization: Bearer pp_live_9482abcdef104928" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "payload": "YOUR_RAW_TEXT_OR_BASE64_MEDIA",
-    "options": {
-      "bi_directional": true,
-      "lossless": true
-    }
-  }'`;
-        break;
-    }
+        return `# Upload & Compress 5TB File Stream via Pied Piper HTTP/3 API
+curl -X POST "https://api.pipernet.io/v4/middle-out/compress" \\
+  -H "Authorization: Bearer pp_live_middle_out_v42_secret" \\
+  -H "Content-Type: application/octet-stream" \\
+  -F "file=@/data/5TB_master_dataset.tar" \\
+  -F "lossless=true" \\
+  -F "weissman_target=5.84"`;
 
-    this.codeBlock.textContent = snippet;
+      case 'js':
+      default:
+        return `import { MiddleOutEngine } from '@piedpiper/sdk';
+
+// Initialize Middle-Out v4.2 Client
+const engine = new MiddleOutEngine({
+  apiKey: 'pp_live_middle_out_v42_secret',
+  depinNodes: true
+});
+
+// Compress massive payload losslessly
+const result = await engine.compress(fileBuffer, {
+  bidirectional: true,
+  neuralEntropy: true
+});
+
+console.log(\`Compressed \${result.origBytes}B down to \${result.compBytes}B (\${result.savings}% saved)\`);
+console.log(\`Weissman Score: \${result.weissmanScore}W\`);`;
+    }
+  }
+
+  renderSnippet() {
+    const codeEl = document.getElementById('sdk-code-block');
+    if (codeEl) {
+      codeEl.textContent = this.getSnippet(this.currentLang);
+    }
   }
 }
 

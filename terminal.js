@@ -3,33 +3,36 @@
    ========================================================================== */
 
 class PiedPiperTerminal {
-  constructor() {
-    this.output = document.getElementById('term-output');
-    this.input = document.getElementById('term-input');
-    this.init();
+  getElements() {
+    return {
+      output: document.getElementById('term-output'),
+      input: document.getElementById('term-input')
+    };
   }
 
   init() {
-    if (!this.input) return;
+    const els = this.getElements();
+    if (!els.input) return;
 
-    this.input.addEventListener('keydown', (e) => {
+    els.input.onkeydown = (e) => {
       if (e.key === 'Enter') {
-        const commandLine = this.input.value.trim();
+        const commandLine = els.input.value.trim();
         if (commandLine) {
           this.executeCommand(commandLine);
-          this.input.value = '';
+          els.input.value = '';
         }
       }
-    });
+    };
   }
 
   printLine(text, className = '') {
-    if (!this.output) return;
+    const els = this.getElements();
+    if (!els.output) return;
     const div = document.createElement('div');
     div.className = `term-line ${className}`;
     div.innerHTML = text;
-    this.output.appendChild(div);
-    this.output.scrollTop = this.output.scrollHeight;
+    els.output.appendChild(div);
+    els.output.scrollTop = els.output.scrollHeight;
   }
 
   executeCommand(cmdStr) {
@@ -48,68 +51,58 @@ class PiedPiperTerminal {
         this.printLine(`  <strong class="accent-yellow">weissman</strong>             - Calculate current system Weissman score`);
         this.printLine(`  <strong class="accent-yellow">depin status</strong>         - View active DePIN P2P nodes and storage pool`);
         this.printLine(`  <strong class="accent-yellow">nodes add</strong>            - Spawn new peer node on network`);
-        this.printLine(`  <strong class="accent-yellow">hooli-hack</strong>           - Simulate Hooli Nucleus stress test breakdown`);
-        this.printLine(`  <strong class="accent-yellow">gilfoyle-screamer</strong>    - Run Gilfoyle system security audit`);
-        this.printLine(`  <strong class="accent-yellow">matrix</strong>               - Render binary stream matrix effect`);
-        this.printLine(`  <strong class="accent-yellow">clear</strong>                - Clear terminal log`);
+        this.printLine(`  <strong class="accent-yellow">hooli-hack</strong>           - Intercept Gavin Belson's Hooli Nucleus logs`);
+        this.printLine(`  <strong class="accent-yellow">matrix</strong>               - Stream green Middle-Out byte matrix`);
+        this.printLine(`  <strong class="accent-yellow">gilfoyle-screamer</strong>    - Play Anton server alert chime`);
+        this.printLine(`  <strong class="accent-yellow">clear</strong>                - Clear terminal console screen`);
         break;
 
       case 'compress':
         if (!args) {
-          this.printLine(`Usage: compress <text string to compress>`, 'accent-red');
+          this.printLine(`Error: Usage: compress &lt;text payload&gt;`, 'accent-red');
         } else {
-          const res = window.moEngine ? window.moEngine.compress(args) : { weissmanScore: 5.2, spaceSavedPercent: 64 };
-          this.printLine(`[MIDDLE-OUT] Input Bytes: ${args.length} B -> Output Bytes: ${res.compressedSize} B`);
-          this.printLine(`[MIDDLE-OUT] Space Saved: <strong class="accent-green">${res.spaceSavedPercent}%</strong> | Weissman Score: <strong class="accent-purple">${res.weissmanScore} W</strong>`);
-          if (window.ppAudio) window.ppAudio.playCompressionSweep();
+          const res = window.moEngine ? window.moEngine.compress(args) : { originalSize: args.length, compressedSize: Math.floor(args.length * 0.3), spaceSavedPercent: 70, weissmanScore: 5.2 };
+          this.printLine(`[MIDDLE-OUT COMPLETED] Orig: ${res.originalSize}B → Comp: ${res.compressedSize}B (${res.spaceSavedPercent}% Saved | Weissman: ${res.weissmanScore}W)`, 'accent-green');
         }
         break;
 
       case 'weissman':
-        this.printLine(`Current Weissman Benchmark: <strong class="accent-green">5.28 W</strong> (Baseline Gzip = 1.00 W)`);
-        this.printLine(`Hooli Nucleus Score: <span class="accent-red">1.42 W (Inferior)</span>`);
+        this.printLine(`Current System Weissman Score: <strong class="accent-purple">5.84 W</strong> (Hooli Baseline: 1.00 W)`, 'accent-green');
         break;
 
       case 'depin':
-        if (args.toLowerCase() === 'status') {
-          this.printLine(`[DEPIN] Active Nodes: 14,892 | Total Storage: 84.2 PB | Health: 100%`);
-          this.printLine(`[DEPIN] Proof of Replication: 99.98% Passed`);
-        } else {
-          this.printLine(`Usage: depin status`);
+        if (args === 'status' || !args) {
+          this.printLine(`DePIN Network: <strong class="accent-green">14,892 Nodes Online</strong> | Storage: 5.2 PB | P2P Compute: 42,100 TFLOPS`, 'accent-blue');
         }
         break;
 
       case 'nodes':
-        if (args.toLowerCase() === 'add') {
+        if (args === 'add') {
           if (window.piperNet) window.piperNet.addRandomNode();
-          this.printLine(`[NODE] Successfully registered and connected new node to PiperNet P2P grid.`, 'accent-green');
-        } else {
-          this.printLine(`Usage: nodes add`);
+          this.printLine(`[NODE] Spawned new P2P peer node into network.`, 'accent-green');
         }
         break;
 
       case 'hooli-hack':
-        this.printLine(`[HOOLI] Intercepting Hooli Nucleus 2.0 compression payload...`);
-        setTimeout(() => this.printLine(`[HOOLI] Hooli server memory leak detected! Code base failing!`, 'accent-red'), 500);
-        setTimeout(() => this.printLine(`[PIED PIPER] Middle-Out taking over stream bandwidth cleanly. Weissman Score boosted!`, 'accent-green'), 1000);
-        break;
-
-      case 'gilfoyle-screamer':
-        this.printLine(`[GILFOYLE] Running system security audit...`, 'accent-purple');
-        this.printLine(`[ANTON] Firewalls active. 0 vulnerabilities found. Satanic encryption key verified.`, 'accent-green');
+        this.printLine(`[INTERCEPT] Gavin Belson Audio Log: "Nucleus is a disaster! How are they achieving 5.8 Weissman score?!"`, 'accent-red');
         break;
 
       case 'matrix':
-        this.printLine(`01001000 01101111 01101111 01101100 01101001 00100000 01010011 01110101 01100011 01101011 01110011`, 'accent-green');
-        this.printLine(`01010000 01101001 01100101 01000100 00100000 01010000 01101001 01110000 01100101 01110010`, 'accent-green');
+        this.printLine(`01001000 01100001 01110010 01110110 01100001 01110010 01100100 00100000 01000011 01101111 01101101 01110000 01110010 01100101 01110011 01110011 01110011`, 'accent-green');
+        break;
+
+      case 'gilfoyle-screamer':
+        if (window.ppAudio) window.ppAudio.playNodePulse();
+        this.printLine(`[ALARM] Anton Server screaming alert activated!`, 'accent-yellow');
         break;
 
       case 'clear':
-        if (this.output) this.output.innerHTML = '';
+        const els = this.getElements();
+        if (els.output) els.output.innerHTML = '';
         break;
 
       default:
-        this.printLine(`Command not recognized: '${cmd}'. Type 'help' for available commands.`, 'accent-red');
+        this.printLine(`Command not recognized: '${cmd}'. Type '<strong class="accent-yellow">help</strong>' for commands.`, 'accent-red');
         break;
     }
   }
