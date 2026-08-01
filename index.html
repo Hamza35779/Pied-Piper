@@ -344,17 +344,17 @@
                   <span class="chip-hint">No attachments yet. Click paperclip or folder button below to attach files or 5TB+ folders!</span>
                 </div>
 
-                <!-- Attachment Action Bar -->
+                <!-- Attachment Action Bar with Native Label Triggers -->
                 <div class="chat-attachment-bar">
                   <div class="attach-buttons">
-                    <button type="button" id="btn-trigger-files" class="btn-attach" title="Attach Individual Files">
+                    <label for="chat-attach-files" id="btn-trigger-files" class="btn-attach" title="Attach Individual Files">
                       📎 Attach Files
-                    </button>
+                    </label>
                     <input type="file" id="chat-attach-files" multiple class="hidden-file-input">
 
-                    <button type="button" id="btn-trigger-folder" class="btn-attach" title="Attach Entire 5TB+ Folders">
+                    <label for="chat-attach-folder" id="btn-trigger-folder" class="btn-attach" title="Attach Entire 5TB+ Folders">
                       📂 Attach 5TB+ Folder
-                    </button>
+                    </label>
                     <input type="file" id="chat-attach-folder" webkitdirectory directory multiple class="hidden-file-input">
 
                     <button type="button" id="btn-sample-5tb" class="btn-attach-alt" title="Load Sample 5TB Enterprise Media & Data Folder">⚡ Load Sample 5TB Dataset</button>

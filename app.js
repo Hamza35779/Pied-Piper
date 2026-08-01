@@ -282,6 +282,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const firstPreset = document.querySelector('.preset-btn[data-sample="json"]');
   if (firstPreset) firstPreset.click();
 
-  // Initial call for file studio
+  // Initial call and direct listener binding for file studio
+  const btnSample = document.getElementById('btn-sample-5tb');
+  const btnExecute = document.getElementById('btn-send-chat-task');
+  const inputFiles = document.getElementById('chat-attach-files');
+  const inputFolder = document.getElementById('chat-attach-folder');
+
+  if (inputFiles) {
+    inputFiles.addEventListener('change', (e) => {
+      if (window.fileStudio) window.fileStudio.handleAttachFiles(e.target.files);
+      inputFiles.value = '';
+    });
+  }
+
+  if (inputFolder) {
+    inputFolder.addEventListener('change', (e) => {
+      if (window.fileStudio) window.fileStudio.handleAttachFiles(e.target.files);
+      inputFolder.value = '';
+    });
+  }
+
+  if (btnSample) {
+    btnSample.addEventListener('click', () => {
+      if (window.fileStudio) window.fileStudio.loadSample5TBDataset();
+    });
+  }
+
+  if (btnExecute) {
+    btnExecute.addEventListener('click', () => {
+      if (window.fileStudio) window.fileStudio.executeMultiTask();
+    });
+  }
+
   if (window.fileStudio) window.fileStudio.init();
 });
