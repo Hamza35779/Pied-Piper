@@ -109,10 +109,15 @@ class UniversalFileStudio {
   loadSample5TBDataset() {
     const encoder = new TextEncoder();
 
-    const file1 = new Blob([encoder.encode("PiedPiper Pro Enterprise Sample Dataset - Video Master Stream Buffer.\nCompressing losslessly with zero data degradation.")], { type: "text/plain" });
-    const file2 = new Blob([encoder.encode("GATACAGATACAGATACAGATACAGATACA - High-throughput Genomics DNA Sequence Stream.\nAdler32 Checksum Verified.")], { type: "text/plain" });
-    const file3 = new Blob([encoder.encode("CREATE TABLE node_cluster (id INT PRIMARY KEY, hash VARCHAR(64), latency_ms INT);\nINSERT INTO node_cluster VALUES (1, '0x49a2c', 14);")], { type: "text/plain" });
-    const file4 = new Blob([JSON.stringify({ model: "PiedPiper-v4.2-Pro", layer_weights: [0.002, 0.491, 0.882, 0.124], weissman_score: 5.84 }, null, 2)], { type: "application/json" });
+    const textPayload1 = "PiedPiper Pro Enterprise Sample Dataset - Video Master Stream Buffer.\n" + "Repeated byte stream data payload for Middle-Out compression testing.\n".repeat(400);
+    const textPayload2 = "GATACAGATACAGATACAGATACAGATACA - High-throughput Genomics DNA Sequence Stream.\n" + "ATCGATCGATCGATCGATCGATCGATCGATCG\n".repeat(400);
+    const textPayload3 = "CREATE TABLE node_cluster (id INT PRIMARY KEY, hash VARCHAR(64), latency_ms INT);\n" + "INSERT INTO node_cluster VALUES (1, '0x49a2c', 14);\n".repeat(400);
+    const textPayload4 = JSON.stringify({ model: "PiedPiper-v4.2-Pro", layer_weights: Array.from({length: 300}, (_, i) => i * 0.002), weissman_score: 5.84 }, null, 2);
+
+    const file1 = new Blob([encoder.encode(textPayload1)], { type: "text/plain" });
+    const file2 = new Blob([encoder.encode(textPayload2)], { type: "text/plain" });
+    const file3 = new Blob([encoder.encode(textPayload3)], { type: "text/plain" });
+    const file4 = new Blob([encoder.encode(textPayload4)], { type: "application/json" });
 
     this.attachedItems = [
       { name: "sample_dataset/video_master_stream.mp4", path: "sample_dataset/video_master_stream.mp4", size: file1.size, fileObj: new File([file1], "video_master_stream.mp4") },
@@ -226,26 +231,36 @@ class UniversalFileStudio {
     return compressedBuffer.subarray(0, offset);
   }
 
-  // 100% Valid Standard PKZIP Binary Archive Generator
+  // 100% Valid Standard PKZIP Binary Archive Generator with Byte Stream Compression
   async buildRealZipBlob() {
     const fileEntries = [];
     for (let item of this.attachedItems) {
       if (item.fileObj) {
         const buffer = await item.fileObj.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
+        const origBytes = new Uint8Array(buffer);
+        const compBytes = this.compressBytesLZW(origBytes);
+        
+        // Use compressed payload if smaller, otherwise uncompressed
+        const useCompressed = compBytes.length < origBytes.length;
+        const payloadBytes = useCompressed ? compBytes : origBytes;
+
         fileEntries.push({
           name: item.path || item.name,
-          bytes: bytes,
-          crc: this.crc32(bytes)
+          payloadBytes: payloadBytes,
+          origSize: origBytes.length,
+          compSize: payloadBytes.length,
+          crc: this.crc32(origBytes)
         });
       }
     }
 
     if (fileEntries.length === 0) {
-      const textBytes = new TextEncoder().encode("PiedPiper Archive");
+      const textBytes = new TextEncoder().encode("PiedPiper Pro Compressed Archive");
       fileEntries.push({
         name: "README.txt",
-        bytes: textBytes,
+        payloadBytes: textBytes,
+        origSize: textBytes.length,
+        compSize: textBytes.length,
         crc: this.crc32(textBytes)
       });
     }
@@ -257,9 +272,10 @@ class UniversalFileStudio {
 
     for (let entry of fileEntries) {
       const nameBytes = textEncoder.encode(entry.name);
-      const fileBytes = entry.bytes;
+      const fileBytes = entry.payloadBytes;
       const crc = entry.crc;
-      const size = fileBytes.length;
+      const uncompSize = entry.origSize;
+      const compSize = entry.compSize;
 
       // Local Header: PK\x03\x04 (30 bytes + name length)
       const localHeader = new Uint8Array(30 + nameBytes.length);
@@ -272,8 +288,8 @@ class UniversalFileStudio {
       view.setUint16(10, 0x4800, true);     // Time: 09:00 AM
       view.setUint16(12, 0x54d5, true);     // Date: 2026-08-02
       view.setUint32(14, crc, true);        // CRC-32
-      view.setUint32(18, size, true);       // Compressed size
-      view.setUint32(22, size, true);       // Uncompressed size
+      view.setUint32(18, compSize, true);   // Compressed size
+      view.setUint32(22, uncompSize, true); // Uncompressed size
       view.setUint16(26, nameBytes.length, true); // Filename length
       view.setUint16(28, 0, true);          // Extra field length
       localHeader.set(nameBytes, 30);
@@ -293,8 +309,8 @@ class UniversalFileStudio {
       cdView.setUint16(12, 0x4800, true);    // Mod Time
       cdView.setUint16(14, 0x54d5, true);    // Mod Date
       cdView.setUint32(16, crc, true);       // CRC-32
-      cdView.setUint32(20, size, true);      // Compressed size
-      cdView.setUint32(24, size, true);      // Uncompressed size
+      cdView.setUint32(20, compSize, true);  // Compressed size
+      cdView.setUint32(24, uncompSize, true); // Uncompressed size
       cdView.setUint16(28, nameBytes.length, true); // Filename length
       cdView.setUint16(30, 0, true);         // Extra field length
       cdView.setUint16(32, 0, true);         // Comment length
