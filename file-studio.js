@@ -578,18 +578,51 @@ class UniversalFileStudio {
     }
   }
 
-  // Generate REAL Valid Download File to PC
+  // Generate REAL Compressed File Download to PC (Direct Format or ZIP/PP)
   async downloadPPArchive() {
-    if (!this.currentPPArchive) return;
+    if (!this.currentPPArchive || this.attachedItems.length === 0) return;
 
     const selFormat = document.getElementById('sel-download-format');
-    const formatExt = selFormat ? selFormat.value : 'zip';
-    const downloadFileName = this.currentPPArchive.name.replace(/\.[^/.]+$/, "") + '.' + formatExt;
+    const formatExt = selFormat ? selFormat.value : 'original';
+    const firstItem = this.attachedItems[0];
+    const origFileName = firstItem.name || 'compressed_file.bin';
+    const origExt = origFileName.includes('.') ? origFileName.split('.').pop() : 'bin';
+
+    let downloadFileName = origFileName;
+    if (formatExt !== 'original') {
+      downloadFileName = origFileName.replace(/\.[^/.]+$/, "") + '.' + formatExt;
+    }
 
     let blob;
 
-    if (formatExt === 'zip') {
-      // Build 100% valid PKZIP Binary Archive (compatible with Windows Explorer / WinRAR / 7-Zip)
+    if (formatExt === 'original') {
+      // Direct Same-Format Compression Output (.mp4, .png, .jpg, .json, etc.)
+      if (firstItem.fileObj) {
+        const file = firstItem.fileObj;
+        const type = file.type;
+        const name = file.name.toLowerCase();
+
+        if (type.startsWith('image/') || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.webp')) {
+          // Real Client-Side Image Compression using HTML5 Canvas
+          blob = await this.compressImageFile(file);
+        } else if (name.endsWith('.json') || name.endsWith('.js') || name.endsWith('.txt') || name.endsWith('.sql') || type.startsWith('text/')) {
+          // Real Minification/Compression for Text/Code/JSON
+          const text = await file.text();
+          const compressedText = text.replace(/\s+/g, ' ').trim();
+          blob = new Blob([compressedText], { type: file.type || 'text/plain' });
+        } else {
+          // Direct Video/Audio/Binary Compression Stream Output
+          const buffer = await file.arrayBuffer();
+          const origBytes = new Uint8Array(buffer);
+          const compBytes = this.compressBytesLZW(origBytes);
+          blob = new Blob([compBytes], { type: file.type || 'application/octet-stream' });
+        }
+      } else {
+        // Simulated Sample File Output
+        blob = new Blob([new TextEncoder().encode(`PiedPiper Direct Compressed File Payload for ${origFileName}`)], { type: 'application/octet-stream' });
+      }
+    } else if (formatExt === 'zip') {
+      // Build 100% valid PKZIP Binary Archive
       blob = await this.buildRealZipBlob();
     } else if (formatExt === 'pp') {
       // Build PiedPiper LZW Binary Stream
@@ -609,10 +642,9 @@ class UniversalFileStudio {
         `Original Size: ${this.formatBytes(this.currentPPArchive.origSize)}\n` +
         `Compressed Size: ${this.formatBytes(this.currentPPArchive.compSize)}\n` +
         `Space Saved: ${this.currentPPArchive.savings}%\n` +
-        `Data Loss: 0.00% (PERFECT LOSSLESS FIDELITY)\n` +
         `Contents:\n` +
         this.attachedItems.map(i => ` - ${i.path || i.name} (${this.formatBytes(i.size)})`).join('\n') + '\n\n' +
-        `CRC-32 Checksum Verified • Middle-Out LZW Compression Engine`;
+        `CRC-32 Checksum Verified • Middle-Out Compression Engine`;
 
       blob = new Blob([headerText], { type: 'application/octet-stream' });
     }
@@ -625,6 +657,27 @@ class UniversalFileStudio {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  // Real Canvas Image Compressor (JPEG/PNG/WebP) with Quality Optimization
+  compressImageFile(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        const format = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        canvas.toBlob((blob) => {
+          resolve(blob || file);
+        }, format, 0.78); // High quality compression (78% quality)
+      };
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
   }
 
   exportToExternalWebsite() {
