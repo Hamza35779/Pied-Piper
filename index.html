@@ -76,31 +76,58 @@
       }
     }
 
-    window.executePipelineTask = function(e) {
-      if (e) e.preventDefault();
-      if (window.fileStudio) {
-        window.fileStudio.executeMultiTask();
-      } else {
-        alert('File Studio is initializing. Please try again.');
-      }
-    };
+    window.pendingFiles = null;
 
     window.handleDirectFileSelect = function(e) {
       var files = (e && e.target && e.target.files) ? e.target.files : (e && e.dataTransfer ? e.dataTransfer.files : null);
       if (files && files.length > 0) {
-        if (window.fileStudio) {
-          window.fileStudio.handleAttachFiles(files);
-          window.fileStudio.executeMultiTask();
-        }
+        window.pendingFiles = files;
       }
+      window.startPipelineNow();
     };
 
     window.loadSampleAndProcess = function(e) {
       if (e) e.preventDefault();
       if (window.fileStudio) {
         window.fileStudio.loadSample5TBDataset();
-        window.fileStudio.executeMultiTask();
       }
+      window.startPipelineNow();
+    };
+
+    window.executePipelineTask = function(e) {
+      if (e) e.preventDefault();
+      window.startPipelineNow();
+    };
+
+    window.startPipelineNow = function() {
+      var progBlock = document.getElementById('stream-progress-block');
+      var fill = document.getElementById('progress-bar-fill');
+      var percent = document.getElementById('progress-percent');
+      var text = document.getElementById('progress-status-text');
+
+      if (progBlock) progBlock.classList.remove('hidden');
+
+      var p = 0;
+      if (window.ppAudio) window.ppAudio.playCompressionSweep();
+
+      var timer = setInterval(function() {
+        p += 10;
+        if (p > 100) p = 100;
+        if (fill) fill.style.width = p + '%';
+        if (percent) percent.textContent = p + '%';
+        if (text) text.textContent = 'Processing Pipeline: ' + p + '%';
+
+        if (p >= 100) {
+          clearInterval(timer);
+          if (window.fileStudio) {
+            if (window.pendingFiles) {
+              window.fileStudio.handleAttachFiles(window.pendingFiles);
+              window.pendingFiles = null;
+            }
+            window.fileStudio.executeMultiTask();
+          }
+        }
+      }, 40);
     };
   </script>
 </head>
