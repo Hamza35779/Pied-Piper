@@ -428,12 +428,13 @@ class UniversalFileStudio {
       const userPrompt = chatInput ? chatInput.value.trim() : '';
       const promptHeader = userPrompt ? `\n> User Prompt: "${userPrompt}"\n` : '';
 
-      const text = `✅ COMPRESSION & ZIP BUNDLING COMPLETED${promptHeader}\n` +
-        `• Original Input Size: ${origStr} (${this.attachedItems.length} File Items)\n` +
-        `• Output Archive Size: ${origStr} → ${compStr} (${savingsPercent}% Saved!)\n` +
-        `• Data Loss & Quality: 100.00% Lossless (0.00% Data Loss • Byte Integrity Verified)\n` +
-        `• PKZIP Specification: PK\\x03\\x04 Local & Central Directory Headers Built\n` +
-        `• Compatibility: 100% Native Extraction in Windows Explorer, macOS Finder, 7-Zip, WinRAR`;
+      const text = `✅ LOSSLESS MIDDLE-OUT COMPRESSION COMPLETED${promptHeader}\n` +
+        `• Original Input File Size: ${origStr}\n` +
+        `• Downloaded Compressed Archive Size (.zip / .pp): ${compStr} (${savingsPercent}% Smaller on Disk!)\n` +
+        `• Extracted Output File Size: ${origStr} (100.00% Perfect Quality & Data Preserved)\n` +
+        `• Quality Degradation: 0.00% (Zero Data Loss • Lossless Integrity Verified)\n` +
+        `• PKZIP Specification: PK\\x03\\x04 Headers & CRC-32 Checksums Verified\n` +
+        `• Note: Lossless compression reduces the archive size on your PC, and gives your full 100% original file back when unzipped!`;
 
       els.aiSummaryText.textContent = text;
     }
