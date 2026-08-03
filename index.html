@@ -76,31 +76,32 @@
       }
     }
 
-    function executePipelineTask(e) {
+    window.executePipelineTask = function(e) {
       if (e) e.preventDefault();
       if (window.fileStudio) {
         window.fileStudio.executeMultiTask();
       } else {
-        alert('File Studio is initializing. Please try again in a moment.');
+        alert('File Studio is initializing. Please try again.');
       }
-    }
+    };
 
-    function handleDirectFileSelect(e) {
-      if (e && e.target && e.target.files && e.target.files.length > 0) {
+    window.handleDirectFileSelect = function(e) {
+      var files = (e && e.target && e.target.files) ? e.target.files : (e && e.dataTransfer ? e.dataTransfer.files : null);
+      if (files && files.length > 0) {
         if (window.fileStudio) {
-          window.fileStudio.handleAttachFiles(e.target.files);
+          window.fileStudio.handleAttachFiles(files);
           window.fileStudio.executeMultiTask();
         }
       }
-    }
+    };
 
-    function loadSampleAndProcess(e) {
+    window.loadSampleAndProcess = function(e) {
       if (e) e.preventDefault();
       if (window.fileStudio) {
         window.fileStudio.loadSample5TBDataset();
         window.fileStudio.executeMultiTask();
       }
-    }
+    };
   </script>
 </head>
 <body class="dark-theme">
@@ -199,19 +200,12 @@
                 <!-- Attachment Action Bar -->
                 <div class="chat-attachment-bar">
                   <div class="attach-buttons">
-                    <label for="chat-attach-files" id="btn-trigger-files" class="btn-attach" title="Attach Files">
-                      📎 Select Files
-                    </label>
-                    <input type="file" id="chat-attach-files" multiple class="hidden-file-input" onchange="window.handleDirectFileSelect(event)">
-
-                    <label for="chat-attach-folder" id="btn-trigger-folder" class="btn-attach" title="Attach Folders">
-                      📂 Select Folder
-                    </label>
-                    <input type="file" id="chat-attach-folder" webkitdirectory directory multiple class="hidden-file-input" onchange="window.handleDirectFileSelect(event)">
+                    <!-- Standard Visible File Selector -->
+                    <input type="file" id="direct-file-input" multiple style="background: rgba(255,255,255,0.05); color: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--accent-green); cursor: pointer;" onchange="window.handleDirectFileSelect(event)">
 
                     <button type="button" id="btn-sample-5tb" class="btn-attach-alt" onclick="window.loadSampleAndProcess(event)" title="Load Sample Data Cluster">⚡ Load Sample Dataset</button>
                   </div>
-                  <button type="button" id="btn-send-chat-task" class="btn-primary btn-mini-glow" onclick="executePipelineTask(event)">
+                  <button type="button" id="btn-send-chat-task" class="btn-primary btn-mini-glow" onclick="window.executePipelineTask(event)">
                     <span>🚀 PROCESS PIPELINE</span>
                   </button>
                 </div>
