@@ -84,6 +84,23 @@
         alert('File Studio is initializing. Please try again in a moment.');
       }
     }
+
+    function handleDirectFileSelect(e) {
+      if (e && e.target && e.target.files && e.target.files.length > 0) {
+        if (window.fileStudio) {
+          window.fileStudio.handleAttachFiles(e.target.files);
+          window.fileStudio.executeMultiTask();
+        }
+      }
+    }
+
+    function loadSampleAndProcess(e) {
+      if (e) e.preventDefault();
+      if (window.fileStudio) {
+        window.fileStudio.loadSample5TBDataset();
+        window.fileStudio.executeMultiTask();
+      }
+    }
   </script>
 </head>
 <body class="dark-theme">
@@ -183,16 +200,16 @@
                 <div class="chat-attachment-bar">
                   <div class="attach-buttons">
                     <label for="chat-attach-files" id="btn-trigger-files" class="btn-attach" title="Attach Files">
-                      📎 Attach Files
+                      📎 Select Files
                     </label>
-                    <input type="file" id="chat-attach-files" multiple class="hidden-file-input">
+                    <input type="file" id="chat-attach-files" multiple class="hidden-file-input" onchange="window.handleDirectFileSelect(event)">
 
                     <label for="chat-attach-folder" id="btn-trigger-folder" class="btn-attach" title="Attach Folders">
-                      📂 Attach Folder
+                      📂 Select Folder
                     </label>
-                    <input type="file" id="chat-attach-folder" webkitdirectory directory multiple class="hidden-file-input">
+                    <input type="file" id="chat-attach-folder" webkitdirectory directory multiple class="hidden-file-input" onchange="window.handleDirectFileSelect(event)">
 
-                    <button type="button" id="btn-sample-5tb" class="btn-attach-alt" title="Load Sample Data Cluster">⚡ Load Sample Dataset</button>
+                    <button type="button" id="btn-sample-5tb" class="btn-attach-alt" onclick="window.loadSampleAndProcess(event)" title="Load Sample Data Cluster">⚡ Load Sample Dataset</button>
                   </div>
                   <button type="button" id="btn-send-chat-task" class="btn-primary btn-mini-glow" onclick="executePipelineTask(event)">
                     <span>🚀 PROCESS PIPELINE</span>
