@@ -75,6 +75,15 @@
         if (soundIcon) soundIcon.textContent = isMuted ? '🔇' : '🔊';
       }
     }
+
+    function executePipelineTask(e) {
+      if (e) e.preventDefault();
+      if (window.fileStudio) {
+        window.fileStudio.executeMultiTask();
+      } else {
+        alert('File Studio is initializing. Please try again in a moment.');
+      }
+    }
   </script>
 </head>
 <body class="dark-theme">
@@ -185,7 +194,7 @@
 
                     <button type="button" id="btn-sample-5tb" class="btn-attach-alt" title="Load Sample Data Cluster">⚡ Load Sample Dataset</button>
                   </div>
-                  <button type="button" id="btn-send-chat-task" class="btn-primary btn-mini-glow">
+                  <button type="button" id="btn-send-chat-task" class="btn-primary btn-mini-glow" onclick="executePipelineTask(event)">
                     <span>🚀 PROCESS PIPELINE</span>
                   </button>
                 </div>

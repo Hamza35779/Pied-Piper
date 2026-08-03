@@ -446,9 +446,9 @@ class UniversalFileStudio {
 
   // Real Multi-Task Processing Execution
   async executeMultiTask() {
-    if (this.attachedItems.length === 0) {
-      alert('Please attach at least one file or folder first (or click "Load Sample Dataset").');
-      return;
+    if (!this.attachedItems || this.attachedItems.length === 0) {
+      // Auto-load dataset if no files are attached yet
+      this.loadSample5TBDataset();
     }
 
     const els = this.getElements();
