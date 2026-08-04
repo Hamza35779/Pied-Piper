@@ -248,7 +248,7 @@ class UniversalFileStudio {
     return compressedBuffer.subarray(0, offset);
   }
 
-  // Playable MP4 Video Stream Transcoder
+  // Playable Full-Duration MP4 Video Stream Transcoder
   compressVideoFile(file) {
     return new Promise((resolve) => {
       const video = document.createElement('video');
@@ -256,7 +256,7 @@ class UniversalFileStudio {
       video.playsInline = true;
       video.src = URL.createObjectURL(file);
 
-      video.onloadeddata = () => {
+      video.onloadedmetadata = () => {
         try {
           const stream = video.captureStream ? video.captureStream() : (video.mozCaptureStream ? video.mozCaptureStream() : null);
           if (!stream) {
@@ -271,7 +271,7 @@ class UniversalFileStudio {
 
           const recorder = new MediaRecorder(stream, {
             mimeType: mimeType,
-            videoBitsPerSecond: 1200000
+            videoBitsPerSecond: 1200000 // 1.2 Mbps bitrate optimization
           });
           const chunks = [];
 
@@ -287,10 +287,23 @@ class UniversalFileStudio {
           video.play().catch(() => {});
           recorder.start();
 
+          // Record full duration of video
+          const fullDurationMs = (video.duration && !isNaN(video.duration) && video.duration > 0) 
+            ? Math.ceil(video.duration * 1000) 
+            : 10000;
+
+          video.onended = () => {
+            if (recorder.state !== 'inactive') {
+              recorder.stop();
+            }
+          };
+
           setTimeout(() => {
-            recorder.stop();
-            video.pause();
-          }, Math.min(3000, (video.duration || 3) * 1000));
+            if (recorder.state !== 'inactive') {
+              recorder.stop();
+              video.pause();
+            }
+          }, fullDurationMs + 500);
         } catch (err) {
           resolve(file);
         }
