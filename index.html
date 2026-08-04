@@ -104,6 +104,8 @@
       var fill = document.getElementById('progress-bar-fill');
       var percent = document.getElementById('progress-percent');
       var text = document.getElementById('progress-status-text');
+      var etaEl = document.getElementById('prog-eta');
+      var chunksEl = document.getElementById('prog-chunks');
 
       if (progBlock) progBlock.classList.remove('hidden');
 
@@ -115,10 +117,14 @@
         if (p > 100) p = 100;
         if (fill) fill.style.width = p + '%';
         if (percent) percent.textContent = p + '%';
-        if (text) text.textContent = 'Processing Pipeline: ' + p + '%';
+        if (text) text.textContent = 'Processing Middle-Out Engine: ' + p + '%';
+
+        var remainingSec = Math.max(0, Math.ceil((100 - p) / 25));
+        if (etaEl) etaEl.textContent = '00:0' + remainingSec + 's';
 
         if (p >= 100) {
           clearInterval(timer);
+          if (etaEl) etaEl.textContent = '00:00s (Completed)';
           if (window.fileStudio) {
             if (window.pendingFiles) {
               window.fileStudio.handleAttachFiles(window.pendingFiles);
@@ -127,7 +133,7 @@
             window.fileStudio.executeMultiTask();
           }
         }
-      }, 40);
+      }, 60);
     };
   </script>
 </head>
@@ -274,7 +280,7 @@
               <div class="stream-metrics-row">
                 <span>Data Processed: <strong id="prog-chunks">0 / 100 MB</strong></span>
                 <span>Speed: <strong id="prog-speed" class="accent-green">3.4 GB/s</strong></span>
-                <span>Data Loss: <strong class="accent-green">0.00% (PERFECT LOSSLESS)</strong></span>
+                <span>Time Remaining (ETA): <strong id="prog-eta" class="accent-yellow">00:03s</strong></span>
               </div>
             </div>
 
