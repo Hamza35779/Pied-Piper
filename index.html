@@ -124,7 +124,13 @@
 
         if (p >= 100) {
           clearInterval(timer);
-          if (etaEl) etaEl.textContent = '00:00s (Completed)';
+          if (fill) fill.style.width = '100%';
+          if (percent) percent.textContent = '100%';
+          if (text) text.textContent = '✅ Compression Pipeline Completed!';
+          if (etaEl) {
+            etaEl.textContent = '00:00s (Completed)';
+            etaEl.className = 'accent-green';
+          }
           if (window.fileStudio) {
             if (window.pendingFiles) {
               window.fileStudio.handleAttachFiles(window.pendingFiles);
