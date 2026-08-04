@@ -1,147 +1,127 @@
 /* ==========================================================================
-   PIED PIPER PRO - ROCK-SOLID REAL-WORLD FILE COMPRESSION ENGINE
+   PIED PIPER — MIDDLE-OUT™ COMPRESSION ENGINE
+   Real-world file compression using native browser APIs
+   Inspired by HBO's Silicon Valley
    ========================================================================== */
 
-class UniversalFileStudio {
+class PiedPiperEngine {
+
+  static MODES = {
+    jared:    { name: 'Jared',    desc: 'Max Quality',    icon: '🐢', imageQuality: 0.92, videoBitrate: 2500000 },
+    richard:  { name: 'Richard',  desc: 'Balanced',       icon: '⚡', imageQuality: 0.75, videoBitrate: 1200000 },
+    gilfoyle: { name: 'Gilfoyle', desc: 'Max Compress',   icon: '🔥', imageQuality: 0.55, videoBitrate: 600000  }
+  };
+
   constructor() {
     this.attachedItems = [];
-    this.currentPPArchive = null;
-    this.compressedBlob = null;
-    this.isBound = false;
+    this.compressedBlobs = new Map();
+    this.currentMode = 'richard';
+    this.history = this.loadHistory();
+    this.isProcessing = false;
   }
 
-  getElements() {
-    return {
-      chipsContainer: document.getElementById('attached-chips-container'),
-      btnExecute: document.getElementById('btn-send-chat-task'),
-      btnSample5TB: document.getElementById('btn-sample-5tb'),
-      inputFiles: document.getElementById('direct-file-input'),
-      progressBlock: document.getElementById('stream-progress-block'),
-      progressBarFill: document.getElementById('progress-bar-fill'),
-      progressText: document.getElementById('progress-status-text'),
-      progressPercent: document.getElementById('progress-percent'),
-      progChunks: document.getElementById('prog-chunks'),
-      aiResultsBox: document.getElementById('ai-task-results-box'),
-      aiSummaryText: document.getElementById('ai-summary-text'),
-      treeWrapper: document.getElementById('compressed-tree-wrapper'),
-      treeUl: document.getElementById('compressed-tree-ul'),
-      viewerEl: document.getElementById('workspace-viewer'),
-      controlsBar: document.getElementById('workspace-controls'),
-      btnDownload: document.getElementById('btn-download-pp'),
-      btnExportWebsite: document.getElementById('btn-export-website')
-    };
-  }
+  /* ── DOM References ─────────────────────────────────────────────────── */
+
+  el(id) { return document.getElementById(id); }
+
+  /* ── Initialization & Event Binding ─────────────────────────────────── */
 
   init() {
-    const els = this.getElements();
-
-    if (els.inputFiles) {
-      els.inputFiles.onchange = (e) => {
+    const fileInput = this.el('direct-file-input');
+    if (fileInput) {
+      fileInput.onchange = (e) => {
         if (e.target.files && e.target.files.length > 0) {
           this.handleAttachFiles(e.target.files);
-          this.executeMultiTask();
+          this.executeCompression();
         }
       };
     }
 
-    // Drag-and-drop dropzone over chat area
-    const chatWrapper = document.querySelector('.chat-upload-wrapper');
-    if (chatWrapper) {
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        chatWrapper.addEventListener(eventName, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }, false);
+    // Drag-and-drop
+    const dropzone = document.querySelector('.chat-upload-wrapper');
+    if (dropzone) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
       });
-
-      chatWrapper.addEventListener('dragover', () => {
-        chatWrapper.style.borderColor = 'var(--accent-green)';
-        chatWrapper.style.background = 'rgba(0, 230, 118, 0.08)';
+      dropzone.addEventListener('dragover', () => {
+        dropzone.style.borderColor = 'var(--accent-green)';
+        dropzone.style.background = 'rgba(0, 230, 118, 0.08)';
       });
-
-      ['dragleave', 'drop'].forEach(eventName => {
-        chatWrapper.addEventListener(eventName, () => {
-          chatWrapper.style.borderColor = '';
-          chatWrapper.style.background = '';
+      ['dragleave', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, () => {
+          dropzone.style.borderColor = '';
+          dropzone.style.background = '';
         });
       });
-
-      chatWrapper.addEventListener('drop', (e) => {
-        const files = e.dataTransfer.files;
-        if (files && files.length > 0) {
-          this.handleAttachFiles(files);
-          this.executeMultiTask();
+      dropzone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          this.handleAttachFiles(e.dataTransfer.files);
+          this.executeCompression();
         }
       });
     }
 
-    if (els.btnSample5TB) {
-      els.btnSample5TB.onclick = (e) => {
-        e.preventDefault();
-        this.loadSample5TBDataset();
-        this.executeMultiTask();
-      };
-    }
+    // Buttons
+    const btnSample = this.el('btn-sample-5tb');
+    if (btnSample) btnSample.onclick = (e) => { e.preventDefault(); this.loadSampleDataset(); this.executeCompression(); };
 
-    if (els.btnExecute) {
-      els.btnExecute.onclick = (e) => {
-        e.preventDefault();
-        this.executeMultiTask();
-      };
-    }
+    const btnExecute = this.el('btn-send-chat-task');
+    if (btnExecute) btnExecute.onclick = (e) => { e.preventDefault(); this.executeCompression(); };
 
-    if (els.btnDownload) {
-      els.btnDownload.onclick = (e) => {
-        e.preventDefault();
-        this.downloadPPArchive();
-      };
-    }
+    const btnDownload = this.el('btn-download-pp');
+    if (btnDownload) btnDownload.onclick = (e) => { e.preventDefault(); this.downloadCompressed(); };
 
-    if (els.btnExportWebsite) {
-      els.btnExportWebsite.onclick = (e) => {
-        e.preventDefault();
-        this.exportToExternalWebsite();
-      };
-    }
+    const btnExport = this.el('btn-export-website');
+    if (btnExport) btnExport.onclick = (e) => { e.preventDefault(); this.exportLink(); };
 
-    this.isBound = true;
+    const btnClearHist = this.el('btn-clear-history');
+    if (btnClearHist) btnClearHist.onclick = () => { this.history = []; sessionStorage.removeItem('pp_history'); this.renderHistory(); };
+
+    // Compression mode radios
+    document.querySelectorAll('input[name="compression-mode"]').forEach(radio => {
+      radio.onchange = () => { this.currentMode = radio.value; };
+    });
+
+    // Render initial history
+    this.renderHistory();
   }
+
+  /* ── File Handling ──────────────────────────────────────────────────── */
 
   handleAttachFiles(files) {
     if (!files || files.length === 0) return;
-
     Array.from(files).forEach(file => {
       this.attachedItems.push({
         name: file.name,
         path: file.webkitRelativePath || file.name,
         size: file.size,
-        fileObj: file,
-        isFolder: file.webkitRelativePath ? true : false
+        fileObj: file
       });
     });
-
     this.renderChips();
     if (window.ppAudio) window.ppAudio.playClick();
   }
 
-  loadSample5TBDataset() {
-    const encoder = new TextEncoder();
-
-    const textPayload1 = "PiedPiper Pro Enterprise Sample Dataset - Video Master Stream Buffer.\n" + "Repeated byte stream data payload for Middle-Out compression testing.\n".repeat(400);
-    const textPayload2 = "GATACAGATACAGATACAGATACAGATACA - High-throughput Genomics DNA Sequence Stream.\n" + "ATCGATCGATCGATCGATCGATCGATCGATCG\n".repeat(400);
-    const textPayload3 = "CREATE TABLE node_cluster (id INT PRIMARY KEY, hash VARCHAR(64), latency_ms INT);\n" + "INSERT INTO node_cluster VALUES (1, '0x49a2c', 14);\n".repeat(400);
-    const textPayload4 = JSON.stringify({ model: "PiedPiper-v4.2-Pro", layer_weights: Array.from({length: 300}, (_, i) => i * 0.002), weissman_score: 5.84 }, null, 2);
-
-    const file1 = new Blob([encoder.encode(textPayload1)], { type: "text/plain" });
-    const file2 = new Blob([encoder.encode(textPayload2)], { type: "text/plain" });
-    const file3 = new Blob([encoder.encode(textPayload3)], { type: "text/plain" });
-    const file4 = new Blob([encoder.encode(textPayload4)], { type: "application/json" });
+  loadSampleDataset() {
+    const enc = new TextEncoder();
+    const makeFile = (name, content, type) => {
+      const blob = new Blob([enc.encode(content)], { type });
+      return { name, path: name, size: blob.size, fileObj: new File([blob], name.split('/').pop()) };
+    };
 
     this.attachedItems = [
-      { name: "sample_dataset/video_master_stream.mp4", path: "sample_dataset/video_master_stream.mp4", size: file1.size, fileObj: new File([file1], "video_master_stream.mp4") },
-      { name: "sample_dataset/genomics_dna_dataset.bin", path: "sample_dataset/genomics_dna_dataset.bin", size: file2.size, fileObj: new File([file2], "genomics_dna_dataset.bin") },
-      { name: "sample_dataset/database_dump.sql", path: "sample_dataset/database_dump.sql", size: file3.size, fileObj: new File([file3], "database_dump.sql") },
-      { name: "sample_dataset/model_weights.json", path: "sample_dataset/model_weights.json", size: file4.size, fileObj: new File([file4], "model_weights.json") }
+      makeFile('hooli_leaked_logs/server_dump.log',
+        'HOOLI NUCLEUS ERROR LOG — CONFIDENTIAL\n' + '[ERROR] Gavin Belson approved merge without code review\n'.repeat(500),
+        'text/plain'),
+      makeFile('bachmanity_insanity/conference_data.json',
+        JSON.stringify({ event: 'Bachmanity Insanity', budget: 500000, attendees: 4200, roi: -100, quote: 'Erlich funded this with his Aviato money', sessions: Array.from({length: 200}, (_, i) => ({ id: i, title: `Session ${i}`, speaker: 'TBD' })) }, null, 2),
+        'application/json'),
+      makeFile('piedpiper_src/middle_out_core.cpp',
+        '#include <middle_out.h>\n// Richard Hendricks - Middle-Out Compression Core\n' + 'void compress_block(uint8_t* data, size_t len) {\n  // Bi-directional traversal from middle pivot\n  size_t mid = len / 2;\n  for (size_t i = 0; i < mid; i++) { /* forward pass */ }\n  for (size_t i = len-1; i >= mid; i--) { /* reverse pass */ }\n}\n'.repeat(200),
+        'text/x-c++src'),
+      makeFile('genomics/dna_sequence.fasta',
+        '>PIED_PIPER_GENOME_v4.2\n' + 'ATCGATCGATCGTAGCTAGCTAGCGATCGATCGATCG\n'.repeat(500),
+        'text/plain')
     ];
 
     this.renderChips();
@@ -149,576 +129,767 @@ class UniversalFileStudio {
   }
 
   renderChips() {
-    const els = this.getElements();
-    if (!els.chipsContainer) return;
-    els.chipsContainer.innerHTML = '';
+    const container = this.el('attached-chips-container');
+    if (!container) return;
+    container.innerHTML = '';
 
     if (this.attachedItems.length === 0) {
-      els.chipsContainer.innerHTML = '<span class="chip-hint">No attachments yet. Choose a file above or click "Load Sample Dataset"!</span>';
+      container.innerHTML = '<span class="chip-hint">No files attached. Choose files above or drag & drop here.</span>';
       return;
     }
 
     this.attachedItems.forEach((item, idx) => {
       const chip = document.createElement('div');
       chip.className = 'file-chip';
-      const icon = item.isFolder ? '📂' : (item.name.endsWith('.mp4') ? '🎬' : (item.name.endsWith('.png') || item.name.endsWith('.jpg') ? '🖼️' : '📄'));
-      const sizeStr = this.formatBytes(item.size);
-
-      chip.innerHTML = `
-        <span>${icon} ${item.name} (${sizeStr})</span>
-        <span class="chip-remove" data-idx="${idx}">×</span>
-      `;
-      els.chipsContainer.appendChild(chip);
+      const icon = this.fileIcon(item.name);
+      chip.innerHTML = `<span>${icon} ${item.name} (${this.fmtBytes(item.size)})</span><span class="chip-remove" data-idx="${idx}">×</span>`;
+      container.appendChild(chip);
     });
 
-    const removes = els.chipsContainer.querySelectorAll('.chip-remove');
-    removes.forEach(btn => {
+    container.querySelectorAll('.chip-remove').forEach(btn => {
       btn.onclick = (e) => {
-        const idx = parseInt(e.target.getAttribute('data-idx'));
-        this.attachedItems.splice(idx, 1);
+        this.attachedItems.splice(parseInt(e.target.dataset.idx), 1);
         this.renderChips();
       };
     });
   }
 
-  formatBytes(bytes) {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
+  /* ── CORE COMPRESSION ENGINE ────────────────────────────────────────── */
 
-  // Fast Standard CRC-32 Checksum Calculation
-  crc32(bytes) {
-    let crc = ~0;
-    for (let i = 0; i < bytes.length; i++) {
-      crc ^= bytes[i];
-      for (let j = 0; j < 8; j++) {
-        crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
-      }
-    }
-    return (crc ^ -1) >>> 0;
-  }
+  async executeCompression() {
+    if (this.isProcessing) return;
+    if (this.attachedItems.length === 0) this.loadSampleDataset();
 
-  // Real Byte-Level LZW Compression Algorithm
-  compressBytesLZW(inputBytes) {
-    if (!inputBytes || inputBytes.length === 0) return new Uint8Array(0);
+    this.isProcessing = true;
+    this.compressedBlobs.clear();
+    const mode = PiedPiperEngine.MODES[this.currentMode];
 
-    const dict = new Map();
-    for (let i = 0; i < 256; i++) {
-      dict.set(String.fromCharCode(i), i);
-    }
+    // Show progress UI
+    const progBlock = this.el('stream-progress-block');
+    if (progBlock) progBlock.classList.remove('hidden');
+    this.updateMainProgress(0, 'Initializing Middle-Out™ Engine...', '—', '—', '—');
 
-    let dictSize = 256;
-    let w = "";
-    const resultCodes = [];
+    if (window.ppAudio) window.ppAudio.playCompressionSweep();
 
-    for (let i = 0; i < inputBytes.length; i++) {
-      const c = String.fromCharCode(inputBytes[i]);
-      const wc = w + c;
-      if (dict.has(wc)) {
-        w = wc;
-      } else {
-        resultCodes.push(dict.get(w));
-        if (dictSize < 65535) {
-          dict.set(wc, dictSize++);
-        }
-        w = c;
-      }
-    }
-    if (w !== "") {
-      resultCodes.push(dict.get(w));
-    }
+    // Show queue
+    this.renderQueue('init');
 
-    const compressedBuffer = new Uint8Array(resultCodes.length * 2 + 8);
-    compressedBuffer[0] = 0x50;
-    compressedBuffer[1] = 0x50;
-    compressedBuffer[2] = 0x34;
-    compressedBuffer[3] = 0x32;
+    const results = [];
+    const totalFiles = this.attachedItems.length;
 
-    const view = new DataView(compressedBuffer.buffer);
-    view.setUint32(4, inputBytes.length, false);
+    for (let i = 0; i < totalFiles; i++) {
+      const item = this.attachedItems[i];
+      const file = item.fileObj;
+      if (!file) continue;
 
-    let offset = 8;
-    for (let code of resultCodes) {
-      view.setUint16(offset, code, false);
-      offset += 2;
-    }
+      this.updateQueueItemStatus(i, 'compressing', 0);
 
-    return compressedBuffer.subarray(0, offset);
-  }
+      const startTime = performance.now();
+      let compressedBlob;
+      let outputName;
+      let strategy;
 
-  // Playable Full-Duration MP4 Video Stream Transcoder
-  compressVideoFile(file) {
-    return new Promise((resolve) => {
-      const video = document.createElement('video');
-      video.muted = true;
-      video.playsInline = true;
-      video.src = URL.createObjectURL(file);
+      const name = file.name.toLowerCase();
+      const type = file.type || '';
+      const isGz = name.endsWith('.gz');
+      const isImage = type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(name);
+      const isVideo = type.startsWith('video/') || /\.(mp4|webm|mkv|avi|mov|flv)$/i.test(name);
+      const isAudio = type.startsWith('audio/') || /\.(mp3|wav|ogg|aac|flac)$/i.test(name);
 
-      video.onloadedmetadata = () => {
-        try {
-          const stream = video.captureStream ? video.captureStream() : (video.mozCaptureStream ? video.mozCaptureStream() : null);
-          if (!stream) {
-            resolve(file);
-            return;
-          }
-
-          let mimeType = 'video/webm;codecs=vp9';
-          if (!MediaRecorder.isTypeSupported(mimeType)) {
-            mimeType = 'video/webm';
-          }
-
-          const recorder = new MediaRecorder(stream, {
-            mimeType: mimeType,
-            videoBitsPerSecond: 1200000 // 1.2 Mbps bitrate optimization
+      try {
+        if (isGz) {
+          // AUTO-DECOMPRESS .gz files
+          strategy = 'decompress';
+          this.updateMainProgress((i / totalFiles) * 100, `Decompressing: ${file.name}`, '—', '—', '—');
+          compressedBlob = await this.decompressGzip(file, (done, total) => {
+            const pct = (done / total) * 100;
+            this.updateQueueItemStatus(i, 'compressing', pct);
+            this.updateMainProgress(((i + done / total) / totalFiles) * 100, `Decompressing: ${file.name}`, this.fmtBytes(done) + ' / ' + this.fmtBytes(total), '—', '—');
           });
-          const chunks = [];
+          outputName = file.name.replace(/\.gz$/i, '') || 'decompressed_file';
 
-          recorder.ondataavailable = (e) => {
-            if (e.data.size > 0) chunks.push(e.data);
-          };
+        } else if (isImage) {
+          strategy = 'image';
+          this.updateMainProgress((i / totalFiles) * 100, `Compressing image: ${file.name}`, '—', '—', '—');
+          compressedBlob = await this.compressImage(file, mode.imageQuality);
+          outputName = file.name;
+          this.updateQueueItemStatus(i, 'compressing', 100);
 
-          recorder.onstop = () => {
-            const compressedBlob = new Blob(chunks, { type: 'video/mp4' });
-            resolve(compressedBlob.size > 0 ? compressedBlob : file);
-          };
+        } else if (isVideo) {
+          strategy = 'video';
+          this.updateMainProgress((i / totalFiles) * 100, `Re-encoding video: ${file.name} (real-time)`, '—', '—', '⚠️ Real-time');
+          compressedBlob = await this.compressVideo(file, mode.videoBitrate, (current, total) => {
+            const pct = (current / total) * 100;
+            this.updateQueueItemStatus(i, 'compressing', pct);
+            const remaining = ((total - current) > 0) ? this.fmtTime((total - current) * 1000) : '00:00';
+            this.updateMainProgress(((i + current / total) / totalFiles) * 100, `Re-encoding: ${file.name}`, this.fmtTime(current * 1000) + ' / ' + this.fmtTime(total * 1000), '—', remaining);
+          });
+          outputName = file.name.replace(/\.[^.]+$/, '.webm');
 
-          video.play().catch(() => {});
-          recorder.start();
+        } else if (isAudio) {
+          // Audio → gzip (browser can't transcode audio easily)
+          strategy = 'gzip';
+          compressedBlob = await this.compressWithGzip(file, (done, total) => {
+            this.updateQueueItemStatus(i, 'compressing', (done / total) * 100);
+            this.updateCompressionMetrics(i, totalFiles, file.name, done, total, startTime);
+          });
+          outputName = file.name + '.gz';
 
-          const fullDurationMs = (video.duration && !isNaN(video.duration) && video.duration > 0) 
-            ? Math.ceil(video.duration * 1000) 
-            : 10000;
-
-          video.onended = () => {
-            if (recorder.state !== 'inactive') {
-              recorder.stop();
-            }
-          };
-
-          setTimeout(() => {
-            if (recorder.state !== 'inactive') {
-              recorder.stop();
-              video.pause();
-            }
-          }, fullDurationMs + 500);
-        } catch (err) {
-          resolve(file);
+        } else {
+          // Everything else → gzip
+          strategy = 'gzip';
+          compressedBlob = await this.compressWithGzip(file, (done, total) => {
+            this.updateQueueItemStatus(i, 'compressing', (done / total) * 100);
+            this.updateCompressionMetrics(i, totalFiles, file.name, done, total, startTime);
+          });
+          outputName = file.name + '.gz';
         }
+      } catch (err) {
+        console.error('Compression error:', err);
+        compressedBlob = file;
+        outputName = file.name;
+        strategy = 'passthrough';
+      }
+
+      const elapsedMs = performance.now() - startTime;
+      const origSize = file.size;
+      const compSize = compressedBlob.size;
+      const isDecomp = strategy === 'decompress';
+      const ratio = isDecomp ? (compSize / Math.max(1, origSize)) : (origSize / Math.max(1, compSize));
+      const savings = isDecomp ? 0 : Math.max(0, ((origSize - compSize) / origSize) * 100);
+      const weissman = isDecomp ? 0 : this.calculateWeissman(origSize, compSize, elapsedMs);
+
+      this.compressedBlobs.set(outputName, compressedBlob);
+
+      const result = {
+        originalName: file.name,
+        outputName,
+        origSize,
+        compSize,
+        ratio: Math.round(ratio * 100) / 100,
+        savings: Math.round(savings * 10) / 10,
+        weissman: Math.round(weissman * 100) / 100,
+        elapsedMs: Math.round(elapsedMs),
+        strategy,
+        isDecompression: isDecomp,
+        timestamp: Date.now()
       };
 
-      video.onerror = () => resolve(file);
-    });
+      results.push(result);
+      this.updateQueueItemStatus(i, 'done', 100, result);
+      this.addToHistory(result);
+    }
+
+    // Final progress
+    this.updateMainProgress(100, '✅ Middle-Out™ Pipeline Complete!', 'All files processed', '—', '00:00 (Done)');
+    const etaEl = this.el('prog-eta');
+    if (etaEl) etaEl.className = 'accent-green';
+
+    // Render results
+    this.renderResultsSummary(results);
+    this.renderDirectoryTree(results);
+    this.renderHistory();
+
+    // Show first file preview + comparison
+    if (results.length > 0) {
+      const first = results[0];
+      const firstBlob = this.compressedBlobs.get(first.outputName);
+      this.renderPreview(firstBlob, first.outputName);
+      this.renderComparison(this.attachedItems[0].fileObj, firstBlob, first);
+    }
+
+    // Show download controls
+    const controlsBar = this.el('workspace-controls');
+    if (controlsBar) {
+      controlsBar.classList.remove('hidden');
+      const archName = this.el('arch-name');
+      const archSav = this.el('arch-savings');
+      if (results.length === 1) {
+        if (archName) archName.textContent = results[0].outputName;
+        if (archSav) archSav.textContent = results[0].isDecompression
+          ? `Decompressed (${this.fmtBytes(results[0].compSize)})`
+          : `Saved ${results[0].savings}% (${this.fmtBytes(results[0].compSize)}) — W: ${results[0].weissman}`;
+      } else {
+        const totalOrig = results.reduce((s, r) => s + r.origSize, 0);
+        const totalComp = results.reduce((s, r) => s + r.compSize, 0);
+        const totalSavings = Math.max(0, ((totalOrig - totalComp) / totalOrig) * 100).toFixed(1);
+        if (archName) archName.textContent = `${results.length} files compressed`;
+        if (archSav) archSav.textContent = `Total: ${this.fmtBytes(totalOrig)} → ${this.fmtBytes(totalComp)} (${totalSavings}% saved)`;
+      }
+    }
+
+    this.isProcessing = false;
+    if (window.ppAudio) window.ppAudio.playSuccessChime();
   }
 
-  // Real Canvas Image Compressor (JPEG/PNG/WebP)
-  compressImageFile(file) {
+  /* ── Real Gzip Compression (Native Browser API) ─────────────────────── */
+
+  async compressWithGzip(file, onProgress) {
+    const totalBytes = file.size;
+    let bytesProcessed = 0;
+
+    const progressTracker = new TransformStream({
+      transform(chunk, controller) {
+        bytesProcessed += chunk.byteLength;
+        if (onProgress) onProgress(bytesProcessed, totalBytes);
+        controller.enqueue(chunk);
+      }
+    });
+
+    const compressedStream = file.stream()
+      .pipeThrough(progressTracker)
+      .pipeThrough(new CompressionStream('gzip'));
+
+    const reader = compressedStream.getReader();
+    const chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+
+    return new Blob(chunks, { type: 'application/gzip' });
+  }
+
+  /* ── Real Gzip Decompression (Native Browser API) ───────────────────── */
+
+  async decompressGzip(file, onProgress) {
+    const totalBytes = file.size;
+    let bytesProcessed = 0;
+
+    const progressTracker = new TransformStream({
+      transform(chunk, controller) {
+        bytesProcessed += chunk.byteLength;
+        if (onProgress) onProgress(bytesProcessed, totalBytes);
+        controller.enqueue(chunk);
+      }
+    });
+
+    const decompressedStream = file.stream()
+      .pipeThrough(progressTracker)
+      .pipeThrough(new DecompressionStream('gzip'));
+
+    const reader = decompressedStream.getReader();
+    const chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+
+    const origName = file.name.replace(/\.gz$/i, '');
+    return new Blob(chunks, { type: this.guessMime(origName) });
+  }
+
+  /* ── Canvas Image Compression ───────────────────────────────────────── */
+
+  compressImage(file, quality) {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
 
-        const format = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        canvas.toBlob((blob) => {
-          resolve(blob || file);
-        }, format, 0.78);
+        const format = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
+        canvas.toBlob(blob => {
+          URL.revokeObjectURL(img.src);
+          resolve(blob && blob.size < file.size ? blob : file);
+        }, format, quality);
       };
-      img.onerror = () => resolve(file);
+      img.onerror = () => { URL.revokeObjectURL(img.src); resolve(file); };
       img.src = URL.createObjectURL(file);
     });
   }
 
-  // 100% Valid Standard PKZIP Binary Archive Generator
-  async buildRealZipBlob() {
-    const fileEntries = [];
-    for (let item of this.attachedItems) {
-      if (item.fileObj) {
-        const buffer = await item.fileObj.arrayBuffer();
-        const origBytes = new Uint8Array(buffer);
-        const compBytes = this.compressBytesLZW(origBytes);
-        
-        const useCompressed = compBytes.length < origBytes.length;
-        const payloadBytes = useCompressed ? compBytes : origBytes;
+  /* ── MediaRecorder Video Compression ────────────────────────────────── */
 
-        fileEntries.push({
-          name: item.path || item.name,
-          payloadBytes: payloadBytes,
-          origSize: origBytes.length,
-          compSize: payloadBytes.length,
-          crc: this.crc32(origBytes)
-        });
+  compressVideo(file, bitrate, onProgress) {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = 'metadata';
+      const url = URL.createObjectURL(file);
+      video.src = url;
+
+      video.onloadedmetadata = () => {
+        const duration = video.duration;
+        if (!duration || !isFinite(duration)) { URL.revokeObjectURL(url); resolve(file); return; }
+
+        try {
+          const stream = video.captureStream ? video.captureStream() : (video.mozCaptureStream ? video.mozCaptureStream() : null);
+          if (!stream) { URL.revokeObjectURL(url); resolve(file); return; }
+
+          let mime = 'video/webm;codecs=vp9';
+          if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm;codecs=vp8';
+          if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+
+          const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: bitrate });
+          const chunks = [];
+
+          recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+          recorder.onstop = () => {
+            URL.revokeObjectURL(url);
+            clearInterval(tick);
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            resolve(blob.size > 0 ? blob : file);
+          };
+
+          const tick = setInterval(() => {
+            if (onProgress && duration > 0) onProgress(video.currentTime, duration);
+          }, 250);
+
+          video.onended = () => {
+            if (onProgress) onProgress(duration, duration);
+            setTimeout(() => { if (recorder.state !== 'inactive') recorder.stop(); }, 200);
+          };
+
+          video.play().catch(() => {});
+          recorder.start(1000);
+
+          // Safety timeout
+          setTimeout(() => {
+            clearInterval(tick);
+            if (recorder.state !== 'inactive') { recorder.stop(); video.pause(); }
+          }, (duration * 1000) + 3000);
+
+        } catch (err) { URL.revokeObjectURL(url); resolve(file); }
+      };
+
+      video.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    });
+  }
+
+  /* ── Weissman Score Calculation ─────────────────────────────────────── */
+
+  calculateWeissman(origSize, compSize, elapsedMs) {
+    const ratio = origSize / Math.max(1, compSize);
+    const speedMBps = (origSize / (1024 * 1024)) / Math.max(0.001, elapsedMs / 1000);
+
+    // Calibrated to produce Silicon Valley-accurate scores (2.0–6.0 range)
+    const W = 0.8 * Math.log2(ratio + 1) * Math.log10(speedMBps + 10);
+    return Math.max(0.1, Math.min(9.99, W));
+  }
+
+  /* ── Progress UI Updates ────────────────────────────────────────────── */
+
+  updateMainProgress(percent, statusText, chunksText, speedText, etaText) {
+    const fill = this.el('progress-bar-fill');
+    const pctEl = this.el('progress-percent');
+    const txtEl = this.el('progress-status-text');
+    const chunkEl = this.el('prog-chunks');
+    const speedEl = this.el('prog-speed');
+    const etaEl = this.el('prog-eta');
+
+    if (fill) fill.style.width = percent + '%';
+    if (pctEl) pctEl.textContent = Math.round(percent) + '%';
+    if (txtEl) txtEl.textContent = statusText;
+    if (chunkEl) chunkEl.textContent = chunksText;
+    if (speedEl) speedEl.textContent = speedText;
+    if (etaEl) etaEl.textContent = etaText;
+  }
+
+  updateCompressionMetrics(fileIdx, totalFiles, fileName, bytesProcessed, totalBytes, startTime) {
+    const elapsed = (performance.now() - startTime) / 1000;
+    const speed = elapsed > 0 ? bytesProcessed / elapsed : 0;
+    const remaining = speed > 0 ? (totalBytes - bytesProcessed) / speed : 0;
+    const overallPct = ((fileIdx + bytesProcessed / totalBytes) / totalFiles) * 100;
+
+    this.updateMainProgress(
+      overallPct,
+      `Middle-Out™ Compressing: ${fileName}`,
+      this.fmtBytes(bytesProcessed) + ' / ' + this.fmtBytes(totalBytes),
+      this.fmtBytes(speed) + '/s',
+      this.fmtTime(remaining * 1000)
+    );
+  }
+
+  /* ── Queue Rendering ────────────────────────────────────────────────── */
+
+  renderQueue(phase) {
+    const queueEl = this.el('compression-queue');
+    const itemsEl = this.el('queue-items');
+    const countEl = this.el('queue-count');
+    if (!queueEl || !itemsEl) return;
+
+    queueEl.classList.remove('hidden');
+    if (countEl) countEl.textContent = this.attachedItems.length + ' files';
+    itemsEl.innerHTML = '';
+
+    this.attachedItems.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'queue-item';
+      row.id = `queue-item-${idx}`;
+      row.innerHTML = `
+        <div class="queue-item-info">
+          <span class="queue-icon">${this.fileIcon(item.name)}</span>
+          <span class="queue-name">${item.name}</span>
+          <span class="queue-size">${this.fmtBytes(item.size)}</span>
+        </div>
+        <div class="queue-item-progress">
+          <div class="queue-progress-track"><div class="queue-progress-fill" id="qpf-${idx}" style="width:0%"></div></div>
+          <span class="queue-percent" id="qpct-${idx}">0%</span>
+        </div>
+        <div class="queue-item-result" id="qres-${idx}"></div>
+        <span class="queue-status" id="qstat-${idx}">🕐</span>
+      `;
+      itemsEl.appendChild(row);
+    });
+  }
+
+  updateQueueItemStatus(idx, status, percent, result) {
+    const fill = this.el(`qpf-${idx}`);
+    const pct = this.el(`qpct-${idx}`);
+    const stat = this.el(`qstat-${idx}`);
+    const res = this.el(`qres-${idx}`);
+
+    if (fill) fill.style.width = Math.round(percent) + '%';
+    if (pct) pct.textContent = Math.round(percent) + '%';
+
+    if (status === 'compressing') {
+      if (stat) stat.textContent = '⏳';
+    } else if (status === 'done' && result) {
+      if (stat) stat.textContent = '✅';
+      if (pct) pct.textContent = '100%';
+      if (fill) fill.style.width = '100%';
+      if (res) {
+        if (result.isDecompression) {
+          res.innerHTML = `<span class="accent-blue">→ ${this.fmtBytes(result.compSize)} (decompressed)</span>`;
+        } else {
+          res.innerHTML = `<span class="accent-green">→ ${this.fmtBytes(result.compSize)} (${result.savings}% saved) W:${result.weissman}</span>`;
+        }
       }
     }
+  }
 
-    if (fileEntries.length === 0) {
-      const textBytes = new TextEncoder().encode("PiedPiper Pro Compressed Archive");
-      fileEntries.push({
-        name: "README.txt",
-        payloadBytes: textBytes,
-        origSize: textBytes.length,
-        compSize: textBytes.length,
-        crc: this.crc32(textBytes)
-      });
-    }
+  /* ── Results Summary ────────────────────────────────────────────────── */
 
-    const chunks = [];
-    const centralDirectoryHeaders = [];
-    let offset = 0;
-    const textEncoder = new TextEncoder();
+  renderResultsSummary(results) {
+    const box = this.el('ai-task-results-box');
+    const textEl = this.el('ai-summary-text');
+    if (!box || !textEl) return;
 
-    for (let entry of fileEntries) {
-      const nameBytes = textEncoder.encode(entry.name);
-      const fileBytes = entry.payloadBytes;
-      const crc = entry.crc;
-      const uncompSize = entry.origSize;
-      const compSize = entry.compSize;
+    box.classList.remove('hidden');
 
-      const localHeader = new Uint8Array(30 + nameBytes.length);
-      const view = new DataView(localHeader.buffer);
+    const totalOrig = results.reduce((s, r) => s + r.origSize, 0);
+    const totalComp = results.reduce((s, r) => s + r.compSize, 0);
+    const totalSavings = totalOrig > 0 ? ((totalOrig - totalComp) / totalOrig * 100).toFixed(1) : '0';
+    const avgWeissman = results.filter(r => !r.isDecompression).reduce((s, r) => s + r.weissman, 0) / Math.max(1, results.filter(r => !r.isDecompression).length);
+    const totalTime = results.reduce((s, r) => s + r.elapsedMs, 0);
 
-      view.setUint32(0, 0x04034b50, true);
-      view.setUint16(4, 20, true);
-      view.setUint16(6, 0, true);
-      view.setUint16(8, 0, true);
-      view.setUint16(10, 0x4800, true);
-      view.setUint16(12, 0x54d5, true);
-      view.setUint32(14, crc, true);
-      view.setUint32(18, compSize, true);
-      view.setUint32(22, uncompSize, true);
-      view.setUint16(26, nameBytes.length, true);
-      view.setUint16(28, 0, true);
-      localHeader.set(nameBytes, 30);
+    const modeName = PiedPiperEngine.MODES[this.currentMode].name;
+    const modeIcon = PiedPiperEngine.MODES[this.currentMode].icon;
 
-      chunks.push(localHeader);
-      chunks.push(fileBytes);
+    let summary = `✅ MIDDLE-OUT™ COMPRESSION COMPLETE\n`;
+    summary += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    summary += `Mode: ${modeIcon} ${modeName} Mode\n`;
+    summary += `Files Processed: ${results.length}\n`;
+    summary += `Total: ${this.fmtBytes(totalOrig)} → ${this.fmtBytes(totalComp)} (${totalSavings}% reduced)\n`;
+    summary += `Weissman Score: ${avgWeissman.toFixed(2)} W\n`;
+    summary += `Time: ${this.fmtTime(totalTime)}\n`;
+    summary += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-      const cdHeader = new Uint8Array(46 + nameBytes.length);
-      const cdView = new DataView(cdHeader.buffer);
-
-      cdView.setUint32(0, 0x02014b50, true);
-      cdView.setUint16(4, 20, true);
-      cdView.setUint16(6, 20, true);
-      cdView.setUint16(8, 0, true);
-      cdView.setUint16(10, 0, true);
-      cdView.setUint16(12, 0x4800, true);
-      cdView.setUint16(14, 0x54d5, true);
-      cdView.setUint32(16, crc, true);
-      cdView.setUint32(20, compSize, true);
-      cdView.setUint32(24, uncompSize, true);
-      cdView.setUint16(28, nameBytes.length, true);
-      cdView.setUint16(30, 0, true);
-      cdView.setUint16(32, 0, true);
-      cdView.setUint16(34, 0, true);
-      cdView.setUint16(36, 0, true);
-      cdView.setUint32(38, 0x00000020, true);
-      cdView.setUint32(42, offset, true);
-      cdHeader.set(nameBytes, 46);
-
-      centralDirectoryHeaders.push(cdHeader);
-      offset += localHeader.length + fileBytes.length;
-    }
-
-    const cdStartOffset = offset;
-    let cdSize = 0;
-    centralDirectoryHeaders.forEach(cd => {
-      chunks.push(cd);
-      cdSize += cd.length;
+    results.forEach((r, i) => {
+      if (r.isDecompression) {
+        summary += `${i + 1}. 📦 ${r.originalName}\n   Decompressed: ${this.fmtBytes(r.origSize)} → ${this.fmtBytes(r.compSize)}\n\n`;
+      } else {
+        summary += `${i + 1}. ${this.fileIcon(r.originalName)} ${r.originalName}\n   ${this.fmtBytes(r.origSize)} → ${this.fmtBytes(r.compSize)} (${r.savings}% saved) | ${r.ratio}x ratio | W: ${r.weissman} | ${this.fmtTime(r.elapsedMs)}\n   Strategy: ${r.strategy} | Output: ${r.outputName}\n\n`;
+      }
     });
 
-    const eocd = new Uint8Array(22);
-    const eocdView = new DataView(eocd.buffer);
+    summary += `"Making the world a better place... through compression." — Pied Piper`;
 
-    eocdView.setUint32(0, 0x06054b50, true);
-    eocdView.setUint16(4, 0, true);
-    eocdView.setUint16(6, 0, true);
-    eocdView.setUint16(8, fileEntries.length, true);
-    eocdView.setUint16(10, fileEntries.length, true);
-    eocdView.setUint32(12, cdSize, true);
-    eocdView.setUint32(16, cdStartOffset, true);
-    eocdView.setUint16(20, 0, true);
-
-    chunks.push(eocd);
-
-    return new Blob(chunks, { type: 'application/zip' });
+    textEl.textContent = summary;
   }
 
-  // Real Multi-Task Processing Execution
-  executeMultiTask() {
-    if (!this.attachedItems || this.attachedItems.length === 0) {
-      this.loadSample5TBDataset();
-    }
+  /* ── Before/After Comparison Panel ──────────────────────────────────── */
 
-    const els = this.getElements();
+  renderComparison(originalFile, compressedBlob, result) {
+    const panel = this.el('comparison-panel');
+    if (!panel) return;
+    panel.classList.remove('hidden');
 
-    let totalBytes = 0;
-    this.attachedItems.forEach(i => totalBytes += i.size);
-    const totalMB = Math.max(1, (totalBytes / (1024 * 1024)).toFixed(1));
+    const origPrev = this.el('comparison-original-preview');
+    const compPrev = this.el('comparison-compressed-preview');
+    const origSizeEl = this.el('comp-orig-size');
+    const newSizeEl = this.el('comp-new-size');
+    const weissEl = this.el('comp-weissman');
+    const savEl = this.el('comp-savings');
+    const origFmtEl = this.el('comp-orig-format');
+    const newFmtEl = this.el('comp-new-format');
 
-    if (els.progressBlock) els.progressBlock.classList.remove('hidden');
+    if (origSizeEl) origSizeEl.textContent = this.fmtBytes(result.origSize);
+    if (newSizeEl) newSizeEl.textContent = this.fmtBytes(result.compSize);
+    if (weissEl) weissEl.textContent = result.isDecompression ? 'N/A' : `W: ${result.weissman}`;
+    if (savEl) savEl.textContent = result.isDecompression ? 'Decompressed' : `-${result.savings}%`;
+    if (origFmtEl) origFmtEl.textContent = this.getExt(result.originalName).toUpperCase();
+    if (newFmtEl) newFmtEl.textContent = this.getExt(result.outputName).toUpperCase();
 
-    let progress = 0;
-    if (window.ppAudio) window.ppAudio.playCompressionSweep();
-
-    const interval = setInterval(() => {
-      progress += 20;
-      if (progress > 100) progress = 100;
-
-      if (els.progressBarFill) els.progressBarFill.style.width = `${progress}%`;
-      if (els.progressPercent) els.progressPercent.textContent = `${progress}%`;
-      if (els.progressText) els.progressText.textContent = `Processing Pipeline: ${progress}%`;
-      if (els.progChunks) els.progChunks.textContent = `${((totalMB * progress) / 100).toFixed(1)} / ${totalMB} MB`;
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        this.finishMultiTask(totalBytes);
-      }
-    }, 30);
+    // Render previews
+    if (origPrev) this.renderMiniPreview(origPrev, originalFile);
+    if (compPrev) this.renderMiniPreview(compPrev, compressedBlob);
   }
 
-  async finishMultiTask(totalBytes) {
-    const els = this.getElements();
+  renderMiniPreview(container, fileOrBlob) {
+    container.innerHTML = '';
+    if (!fileOrBlob) { container.innerHTML = '<span class="preview-placeholder">No preview</span>'; return; }
 
-    const firstItem = this.attachedItems[0];
-    const firstItemName = firstItem.name.replace('/', '');
-    const archiveName = firstItemName.includes('.') ? firstItemName : (firstItemName + '.mp4');
+    const type = fileOrBlob.type || '';
+    const name = (fileOrBlob.name || '').toLowerCase();
+    const url = URL.createObjectURL(fileOrBlob);
 
-    // Create Real Playable Compressed File Blob
-    if (firstItem.fileObj) {
-      const file = firstItem.fileObj;
-      const type = file.type;
-      const name = file.name.toLowerCase();
-
-      if (type.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.webm')) {
-        this.compressedBlob = await this.compressVideoFile(file);
-      } else if (type.startsWith('image/') || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-        this.compressedBlob = await this.compressImageFile(file);
-      } else if (name.endsWith('.json') || name.endsWith('.js') || name.endsWith('.txt') || name.endsWith('.sql') || type.startsWith('text/')) {
-        const text = await file.text();
-        const compressedText = text.replace(/\s+/g, ' ').trim();
-        this.compressedBlob = new Blob([compressedText], { type: file.type || 'text/plain' });
-      } else {
-        const buffer = await file.arrayBuffer();
-        const origBytes = new Uint8Array(buffer);
-        const compBytes = this.compressBytesLZW(origBytes);
-        this.compressedBlob = new Blob([compBytes], { type: file.type || 'application/octet-stream' });
-      }
+    if (type.startsWith('image/') || /\.(png|jpe?g|webp|gif|svg)$/i.test(name)) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'comparison-img';
+      container.appendChild(img);
+    } else if (type.startsWith('video/') || /\.(mp4|webm|mkv)$/i.test(name)) {
+      const vid = document.createElement('video');
+      vid.src = url;
+      vid.controls = true;
+      vid.muted = true;
+      vid.className = 'comparison-video';
+      container.appendChild(vid);
     } else {
-      this.compressedBlob = new Blob([new TextEncoder().encode(`PiedPiper Stream Payload for ${archiveName}`)], { type: 'video/mp4' });
+      container.innerHTML = `<div class="preview-placeholder"><span class="preview-icon">${this.fileIcon(name)}</span><span>${this.fmtBytes(fileOrBlob.size)}</span></div>`;
     }
-
-    const actualCompBytes = (this.compressedBlob && this.compressedBlob.size > 0) ? this.compressedBlob.size : Math.floor(totalBytes * 0.38);
-    const origStr = this.formatBytes(totalBytes);
-    const compStr = this.formatBytes(actualCompBytes);
-    const savingsPercent = totalBytes > 0 ? Math.max(0, (((totalBytes - actualCompBytes) / totalBytes) * 100)).toFixed(1) : "62.0";
-
-    this.currentPPArchive = {
-      name: archiveName,
-      files: this.attachedItems,
-      origSize: totalBytes,
-      compSize: actualCompBytes,
-      savings: savingsPercent
-    };
-
-    // Unhide AI Results Box
-    if (els.aiResultsBox) {
-      els.aiResultsBox.classList.remove('hidden');
-    }
-
-    if (els.aiSummaryText) {
-      const chatInput = document.getElementById('chat-prompt-input');
-      const userPrompt = chatInput ? chatInput.value.trim() : '';
-      const promptHeader = userPrompt ? `\n> User Prompt: "${userPrompt}"\n` : '';
-
-      const text = `✅ REAL-WORLD COMPRESSION PIPELINE COMPLETED${promptHeader}\n` +
-        `• Attached File: ${archiveName}\n` +
-        `• Original File Size: ${origStr}\n` +
-        `• Real Compressed Output Size: ${origStr} → ${compStr} (${savingsPercent}% Size Reduction on Disk!)\n` +
-        `• File Integrity: 100% Playable & Usable (Native MP4 / Image / Data Formats Verified)`;
-
-      els.aiSummaryText.textContent = text;
-    }
-
-    // Render Directory Tree
-    this.renderDirectoryTree();
-
-    // Render Playable Video/Media Viewer directly
-    this.renderLosslessViewer(firstItem.fileObj || this.compressedBlob, archiveName, savingsPercent);
-
-    // Unhide Download & Export Controls Bar
-    if (els.controlsBar) {
-      els.controlsBar.classList.remove('hidden');
-      const archName = document.getElementById('arch-name');
-      const archSav = document.getElementById('arch-savings');
-      if (archName) archName.textContent = archiveName;
-      if (archSav) archSav.textContent = `Saved ${savingsPercent}% Losslessly (${compStr})`;
-    }
-
-    if (window.ppAudio) window.ppAudio.playSuccessChime();
   }
 
-  renderDirectoryTree() {
-    const els = this.getElements();
-    if (!els.treeWrapper || !els.treeUl) return;
-    els.treeWrapper.classList.remove('hidden');
-    els.treeUl.innerHTML = '';
+  /* ── Media Preview ──────────────────────────────────────────────────── */
 
-    this.attachedItems.forEach((item) => {
+  renderPreview(blob, filename) {
+    const viewer = this.el('workspace-viewer');
+    if (!viewer || !blob) return;
+    viewer.innerHTML = '';
+
+    const type = blob.type || '';
+    const name = filename.toLowerCase();
+    const url = URL.createObjectURL(blob);
+
+    if (type.startsWith('video/') || /\.(mp4|webm|mkv)$/i.test(name)) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'width:100%;text-align:center;';
+      const video = document.createElement('video');
+      video.src = url;
+      video.controls = true;
+      video.playsInline = true;
+      video.style.cssText = 'width:100%;max-height:360px;border-radius:8px;background:#000;box-shadow:0 4px 20px rgba(0,0,0,0.6);';
+      const btn = document.createElement('button');
+      btn.className = 'btn-primary btn-mini';
+      btn.style.marginTop = '10px';
+      btn.textContent = '▶ Play Compressed Video';
+      btn.onclick = () => video.play();
+      wrap.appendChild(video);
+      wrap.appendChild(btn);
+      viewer.appendChild(wrap);
+
+    } else if (type.startsWith('image/') || /\.(png|jpe?g|webp|gif|svg)$/i.test(name)) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'max-width:100%;max-height:320px;border-radius:8px;';
+      viewer.appendChild(img);
+
+    } else if (type.startsWith('audio/') || /\.(mp3|wav|ogg|aac)$/i.test(name)) {
+      const audio = document.createElement('audio');
+      audio.src = url;
+      audio.controls = true;
+      viewer.appendChild(audio);
+
+    } else {
+      viewer.innerHTML = `<div class="placeholder-text"><span>${this.fileIcon(filename)} ${filename} — ${this.fmtBytes(blob.size)}</span><span style="margin-top:8px;color:var(--text-muted);">Download to open with your system's default application</span></div>`;
+    }
+  }
+
+  /* ── Directory Tree ─────────────────────────────────────────────────── */
+
+  renderDirectoryTree(results) {
+    const wrapper = this.el('compressed-tree-wrapper');
+    const ul = this.el('compressed-tree-ul');
+    if (!wrapper || !ul) return;
+
+    wrapper.classList.remove('hidden');
+    ul.innerHTML = '';
+
+    results.forEach((result, idx) => {
       const li = document.createElement('li');
       li.className = 'tree-item';
-      const icon = item.isFolder ? '📂' : (item.name.endsWith('.mp4') ? '🎬' : (item.name.endsWith('.png') || item.name.endsWith('.jpg') ? '🖼️' : '📄'));
-      const sizeStr = this.formatBytes(item.size);
-
+      const icon = this.fileIcon(result.outputName);
       li.innerHTML = `
-        <span>${icon} ${item.path || item.name}</span>
-        <span style="color: var(--accent-green); font-weight: bold;">${sizeStr} [Compressed]</span>
+        <span>${icon} ${result.outputName}</span>
+        <span style="color:var(--accent-green);font-weight:bold;">${this.fmtBytes(result.compSize)} ${result.isDecompression ? '[Decompressed]' : '[' + result.savings + '% saved]'}</span>
       `;
-
       li.onclick = () => {
-        const allItems = els.treeUl.querySelectorAll('.tree-item');
-        allItems.forEach(i => i.classList.remove('tree-item-active'));
+        ul.querySelectorAll('.tree-item').forEach(i => i.classList.remove('tree-item-active'));
         li.classList.add('tree-item-active');
-
-        this.renderLosslessViewer(item.fileObj || this.compressedBlob, item.name, 62.0);
+        const blob = this.compressedBlobs.get(result.outputName);
+        if (blob) this.renderPreview(blob, result.outputName);
       };
-
-      els.treeUl.appendChild(li);
+      ul.appendChild(li);
     });
   }
 
-  renderSimulatedPlayer(archiveName, savingsPercent) {
-    const els = this.getElements();
-    if (!els.viewerEl) return;
-    els.viewerEl.innerHTML = `
-      <div class="embedded-widget-preview" style="width: 100%;">
-        <div class="widget-header">
-          <span class="widget-logo">💚 PiedPiper Interactive Media Preview</span>
-          <span class="widget-tag">0% Quality Loss</span>
-        </div>
-        <div class="widget-body">
-          <div class="widget-media">
-            <div class="wave-animation">
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-            <div class="widget-text">
-              <strong>${archiveName}</strong>
-              <small>Playable Compressed Stream (${savingsPercent}% Reduced)</small>
-            </div>
-          </div>
-          <div class="widget-controls">
-            <button type="button" class="btn-mini btn-glow" id="btn-play-sim">▶ Play Video Stream</button>
-          </div>
-        </div>
-      </div>
-    `;
+  /* ── Session History ────────────────────────────────────────────────── */
 
-    const btnPlaySim = document.getElementById('btn-play-sim');
-    if (btnPlaySim) {
-      btnPlaySim.onclick = () => {
-        if (window.ppAudio) window.ppAudio.playSuccessChime();
-      };
-    }
+  loadHistory() {
+    try {
+      return JSON.parse(sessionStorage.getItem('pp_history') || '[]');
+    } catch { return []; }
   }
 
-  renderLosslessViewer(fileOrBlob, archiveName, savingsPercent) {
-    const els = this.getElements();
-    if (!els.viewerEl) return;
-    els.viewerEl.innerHTML = '';
+  addToHistory(result) {
+    this.history.push(result);
+    try { sessionStorage.setItem('pp_history', JSON.stringify(this.history)); } catch {}
+  }
 
-    if (!fileOrBlob) {
-      this.renderSimulatedPlayer(archiveName, savingsPercent);
+  renderHistory() {
+    const panel = this.el('session-history');
+    const itemsEl = this.el('history-items');
+    const totalsEl = this.el('history-totals');
+    if (!panel || !itemsEl) return;
+
+    if (this.history.length === 0) {
+      panel.classList.add('hidden');
       return;
     }
 
-    const type = fileOrBlob.type || '';
-    const name = (fileOrBlob.name || archiveName).toLowerCase();
-    const mediaUrl = URL.createObjectURL(fileOrBlob);
+    panel.classList.remove('hidden');
+    itemsEl.innerHTML = '';
 
-    if (type.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.webm') || name.endsWith('.mkv')) {
-      const videoWrapper = document.createElement('div');
-      videoWrapper.style.width = '100%';
-      videoWrapper.style.textAlign = 'center';
+    this.history.slice().reverse().forEach((h, idx) => {
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      const ago = this.timeAgo(h.timestamp);
+      if (h.isDecompression) {
+        row.innerHTML = `<span class="history-idx">#${this.history.length - idx}</span><span class="history-name">${h.originalName}</span><span class="accent-blue">${this.fmtBytes(h.origSize)} → ${this.fmtBytes(h.compSize)} (decompressed)</span><span class="history-ago">${ago}</span>`;
+      } else {
+        row.innerHTML = `<span class="history-idx">#${this.history.length - idx}</span><span class="history-name">${h.originalName}</span><span class="accent-green">${this.fmtBytes(h.origSize)} → ${this.fmtBytes(h.compSize)} (${h.savings}%)</span><span class="history-weissman">W:${h.weissman}</span><span class="history-ago">${ago}</span>`;
+      }
+      itemsEl.appendChild(row);
+    });
 
-      const video = document.createElement('video');
-      video.className = 'media-preview-video';
-      video.controls = true;
-      video.playsInline = true;
-      video.src = mediaUrl;
-      video.style.width = '100%';
-      video.style.maxHeight = '360px';
-      video.style.borderRadius = '8px';
-      video.style.background = '#000';
-      video.style.boxShadow = '0 4px 20px rgba(0,0,0,0.6)';
-
-      const playBtn = document.createElement('button');
-      playBtn.className = 'btn-primary btn-mini';
-      playBtn.style.marginTop = '10px';
-      playBtn.innerHTML = '▶ Play Compressed Video Preview';
-      playBtn.onclick = () => video.play();
-
-      videoWrapper.appendChild(video);
-      videoWrapper.appendChild(playBtn);
-      els.viewerEl.appendChild(videoWrapper);
-
-    } else if (type.startsWith('image/') || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.svg') || name.endsWith('.jpeg')) {
-      const img = document.createElement('img');
-      img.className = 'media-preview-img';
-      img.src = mediaUrl;
-      img.style.maxWidth = '100%';
-      img.style.maxHeight = '320px';
-      img.style.borderRadius = '8px';
-      els.viewerEl.appendChild(img);
-
-    } else if (type.startsWith('audio/') || name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.ogg')) {
-      const audio = document.createElement('audio');
-      audio.className = 'media-preview-audio';
-      audio.controls = true;
-      audio.src = mediaUrl;
-      els.viewerEl.appendChild(audio);
-
-    } else {
-      this.renderSimulatedPlayer(archiveName, savingsPercent);
+    if (totalsEl) {
+      const compJobs = this.history.filter(h => !h.isDecompression);
+      const totalOrig = compJobs.reduce((s, h) => s + h.origSize, 0);
+      const totalComp = compJobs.reduce((s, h) => s + h.compSize, 0);
+      const totalSaved = totalOrig > 0 ? ((totalOrig - totalComp) / totalOrig * 100).toFixed(1) : '0';
+      totalsEl.innerHTML = `<strong>Session Total:</strong> ${this.fmtBytes(totalOrig)} → ${this.fmtBytes(totalComp)} (${totalSaved}% saved across ${compJobs.length} compressions)`;
     }
   }
 
-  // Generate REAL Playable Compressed File Download
-  async downloadPPArchive() {
-    if (!this.currentPPArchive || this.attachedItems.length === 0) return;
+  /* ── Download & Export ──────────────────────────────────────────────── */
 
-    const firstItem = this.attachedItems[0];
-    const origFileName = firstItem.name || 'compressed_file.bin';
+  downloadCompressed() {
+    if (this.compressedBlobs.size === 0) return;
 
-    let blob = this.compressedBlob;
-    if (!blob) {
-      blob = await this.compressVideoFile(firstItem.fileObj || new Blob());
+    if (this.compressedBlobs.size === 1) {
+      const [name, blob] = [...this.compressedBlobs.entries()][0];
+      this.triggerDownload(blob, name);
+    } else {
+      // Download all as individual files
+      this.compressedBlobs.forEach((blob, name) => {
+        this.triggerDownload(blob, name);
+      });
     }
+  }
 
+  triggerDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = origFileName;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
 
-  // Playable Export Link (Opens Playable Media Blob in New Tab)
-  exportToExternalWebsite() {
-    if (!this.currentPPArchive || this.attachedItems.length === 0) return;
+  exportLink() {
+    if (this.compressedBlobs.size === 0) return;
+    const [, blob] = [...this.compressedBlobs.entries()][0];
+    window.open(URL.createObjectURL(blob), '_blank');
+  }
 
-    const firstItem = this.attachedItems[0];
-    const origFileName = firstItem.name || 'compressed_file.bin';
-    let blob = this.compressedBlob || (firstItem.fileObj ? firstItem.fileObj : new Blob([new TextEncoder().encode("PiedPiper Stream")], { type: 'video/mp4' }));
+  /* ── Utility Helpers ────────────────────────────────────────────────── */
 
-    const shareUrl = URL.createObjectURL(blob);
-    window.open(shareUrl, '_blank');
+  fmtBytes(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + units[i];
+  }
+
+  fmtTime(ms) {
+    if (!ms || ms <= 0) return '00:00';
+    const totalSec = Math.ceil(ms / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    return String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+  }
+
+  timeAgo(timestamp) {
+    const diff = Date.now() - timestamp;
+    if (diff < 60000) return Math.round(diff / 1000) + 's ago';
+    if (diff < 3600000) return Math.round(diff / 60000) + 'm ago';
+    return Math.round(diff / 3600000) + 'h ago';
+  }
+
+  fileIcon(name) {
+    const n = (name || '').toLowerCase();
+    if (/\.(mp4|webm|mkv|avi|mov)$/i.test(n)) return '🎬';
+    if (/\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(n)) return '🖼️';
+    if (/\.(mp3|wav|ogg|aac|flac)$/i.test(n)) return '🎵';
+    if (/\.(json)$/i.test(n)) return '📋';
+    if (/\.(js|ts|py|cpp|c|h|java|rs|go)$/i.test(n)) return '💻';
+    if (/\.(sql|db)$/i.test(n)) return '🗄️';
+    if (/\.(pdf)$/i.test(n)) return '📕';
+    if (/\.(zip|gz|tar|rar|7z)$/i.test(n)) return '📦';
+    if (/\.(log|txt|md|csv)$/i.test(n)) return '📄';
+    return '📄';
+  }
+
+  getExt(name) {
+    const parts = (name || '').split('.');
+    return parts.length > 1 ? parts.pop() : 'BIN';
+  }
+
+  guessMime(name) {
+    const ext = this.getExt(name).toLowerCase();
+    const map = {
+      'json': 'application/json', 'js': 'text/javascript', 'html': 'text/html',
+      'css': 'text/css', 'txt': 'text/plain', 'csv': 'text/csv', 'xml': 'text/xml',
+      'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif',
+      'svg': 'image/svg+xml', 'webp': 'image/webp', 'mp4': 'video/mp4', 'webm': 'video/webm',
+      'mp3': 'audio/mpeg', 'wav': 'audio/wav', 'pdf': 'application/pdf'
+    };
+    return map[ext] || 'application/octet-stream';
   }
 }
 
-window.fileStudio = new UniversalFileStudio();
+/* ── Bootstrap ────────────────────────────────────────────────────────── */
+
+window.fileStudio = new PiedPiperEngine();
 window.fileStudio.init();
+
+/* Legacy compat — called by index.html event handlers */
+window.handleDirectFileSelect = function(e) {
+  const files = e?.target?.files || e?.dataTransfer?.files;
+  if (files && files.length > 0) {
+    window.fileStudio.handleAttachFiles(files);
+    window.fileStudio.executeCompression();
+  }
+};
+
+window.loadSampleAndProcess = function(e) {
+  if (e) e.preventDefault();
+  window.fileStudio.loadSampleDataset();
+  window.fileStudio.executeCompression();
+};
+
+window.executePipelineTask = function(e) {
+  if (e) e.preventDefault();
+  window.fileStudio.executeCompression();
+};

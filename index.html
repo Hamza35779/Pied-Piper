@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PiedPiper Pro - Enterprise File Studio & Data Compression Engine</title>
+  <title>Pied Piper — Middle-Out™ Compression Engine | Making the world a better place</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,71 +76,7 @@
       }
     }
 
-    window.pendingFiles = null;
-
-    window.handleDirectFileSelect = function(e) {
-      var files = (e && e.target && e.target.files) ? e.target.files : (e && e.dataTransfer ? e.dataTransfer.files : null);
-      if (files && files.length > 0) {
-        window.pendingFiles = files;
-      }
-      window.startPipelineNow();
-    };
-
-    window.loadSampleAndProcess = function(e) {
-      if (e) e.preventDefault();
-      if (window.fileStudio) {
-        window.fileStudio.loadSample5TBDataset();
-      }
-      window.startPipelineNow();
-    };
-
-    window.executePipelineTask = function(e) {
-      if (e) e.preventDefault();
-      window.startPipelineNow();
-    };
-
-    window.startPipelineNow = function() {
-      var progBlock = document.getElementById('stream-progress-block');
-      var fill = document.getElementById('progress-bar-fill');
-      var percent = document.getElementById('progress-percent');
-      var text = document.getElementById('progress-status-text');
-      var etaEl = document.getElementById('prog-eta');
-      var chunksEl = document.getElementById('prog-chunks');
-
-      if (progBlock) progBlock.classList.remove('hidden');
-
-      var p = 0;
-      if (window.ppAudio) window.ppAudio.playCompressionSweep();
-
-      var timer = setInterval(function() {
-        p += 10;
-        if (p > 100) p = 100;
-        if (fill) fill.style.width = p + '%';
-        if (percent) percent.textContent = p + '%';
-        if (text) text.textContent = 'Processing Middle-Out Engine: ' + p + '%';
-
-        var remainingSec = Math.max(0, Math.ceil((100 - p) / 25));
-        if (etaEl) etaEl.textContent = '00:0' + remainingSec + 's';
-
-        if (p >= 100) {
-          clearInterval(timer);
-          if (fill) fill.style.width = '100%';
-          if (percent) percent.textContent = '100%';
-          if (text) text.textContent = '✅ Compression Pipeline Completed!';
-          if (etaEl) {
-            etaEl.textContent = '00:00s (Completed)';
-            etaEl.className = 'accent-green';
-          }
-          if (window.fileStudio) {
-            if (window.pendingFiles) {
-              window.fileStudio.handleAttachFiles(window.pendingFiles);
-              window.pendingFiles = null;
-            }
-            window.fileStudio.executeMultiTask();
-          }
-        }
-      }, 60);
-    };
+    /* Event handlers are now in file-studio.js — no fake timers */
   </script>
 </head>
 <body class="dark-theme">
@@ -148,11 +84,11 @@
   <!-- Live System Ticker Bar -->
   <div class="ticker-bar">
     <div class="ticker-content">
-      <span class="ticker-item"><strong class="pulse-dot">●</strong> PIPEDPIPER ENGINE: v4.2 PRO RELEASE</span>
-      <span class="ticker-item">COMPRESSION RATIO: <strong>3.18x (68.2% SAVED)</strong></span>
-      <span class="ticker-item">BENCHMARK SCORE: <strong>5.84W LOSSLESS</strong></span>
-      <span class="ticker-item">ENCRYPTION: <strong>AES-256 & SHA-256 INTEGRITY</strong></span>
-      <span class="ticker-item">THROUGHPUT: <strong>3.4 GB/s MULTI-THREADED</strong></span>
+      <span class="ticker-item"><strong class="pulse-dot">●</strong> MIDDLE-OUT™ ENGINE ACTIVE</span>
+      <span class="ticker-item">WEISSMAN SCORE: <strong>5.2 W</strong></span>
+      <span class="ticker-item">HOOLI BENCHMARK: <strong>DEFEATED</strong></span>
+      <span class="ticker-item">ALGORITHM: <strong>BI-DIRECTIONAL COMPRESSION</strong></span>
+      <span class="ticker-item">"MAKING THE WORLD A BETTER PLACE" <strong>— PIED PIPER</strong></span>
     </div>
   </div>
 
@@ -164,8 +100,8 @@
           <img src="logo-mark.svg" alt="PiedPiper Logo" class="brand-svg-logo">
         </div>
         <div class="brand-text">
-          <span class="brand-title">PIEDPIPER <span class="v-badge">PRO v4.2</span></span>
-          <span class="brand-sub">HIGH-EFFICIENCY DATA STUDIO & COMPRESSION ENGINE</span>
+          <span class="brand-title">PIED PIPER <span class="v-badge">v4.2</span></span>
+          <span class="brand-sub">Making the world a better place — through compression</span>
         </div>
       </div>
 
@@ -177,7 +113,7 @@
           <span class="nav-icon">⚡</span> Compression Engine
         </button>
         <button class="nav-btn" data-tab="tab-depin" onclick="switchTab('tab-depin')">
-          <span class="nav-icon">🌐</span> Network Nodes
+          <span class="nav-icon">🌐</span> PiperNet
         </button>
         <button class="nav-btn" data-tab="tab-weissman" onclick="switchTab('tab-weissman')">
           <span class="nav-icon">📊</span> Benchmark Suite
@@ -213,16 +149,16 @@
     <!-- TAB 1: FILE STUDIO & BATCH COMPRESSION (DEFAULT ACTIVE) -->
     <section id="tab-studio" class="tab-content active">
       <div class="section-header">
-        <h2>File & Folder Processing Studio <span class="gradient-text">(Batch Compression Pipeline)</span></h2>
-        <p>Compress large files or folder structures with zero data loss. Generate standard PC archives (.zip/.pp), inspect directory trees, view files in-stream, and export across platforms.</p>
+        <h2>Middle-Out™ <span class="gradient-text">File Compression Studio</span></h2>
+        <p>Real-world file compression powered by native gzip, image re-encoding, and video transcoding. Drop any file — get a genuinely smaller output. <em>"Consider the elephant."</em></p>
       </div>
 
       <div class="grid-2col">
         <!-- Chatbot-style File/Folder Attachment Uploader -->
         <div class="glass-card">
           <div class="card-header">
-            <h3><span class="card-icon">🤖</span> PiedPiper Data Studio & Attachment Pipeline</h3>
-            <span class="badge badge-success">Stream Chunking Ready</span>
+            <h3><span class="card-icon">⚡</span> Middle-Out™ Compression Pipeline</h3>
+            <span class="badge badge-success">Engine Ready</span>
           </div>
           <div class="card-body">
             
@@ -251,27 +187,44 @@
               </div>
             </div>
 
-            <!-- Multi-Task Options -->
-            <div class="multi-task-options margin-top">
-              <span class="label-sm">Select Pipeline Processing Tasks:</span>
-              <div class="task-checkboxes">
-                <label class="task-chip-check">
-                  <input type="checkbox" id="task-compress" checked>
-                  <span>📦 1. High-Ratio Lossless Compression</span>
+            <!-- Compression Mode Selector (Silicon Valley Characters) -->
+            <div class="compression-modes margin-top">
+              <span class="label-sm">Middle-Out™ Compression Mode:</span>
+              <div class="mode-options">
+                <label class="mode-option">
+                  <input type="radio" name="compression-mode" value="jared">
+                  <span class="mode-card">
+                    <span class="mode-icon">🐢</span>
+                    <span class="mode-name">Jared</span>
+                    <span class="mode-desc">Max Quality</span>
+                  </span>
                 </label>
-                <label class="task-chip-check">
-                  <input type="checkbox" id="task-tree" checked>
-                  <span>📂 2. Directory Tree Inspection</span>
+                <label class="mode-option">
+                  <input type="radio" name="compression-mode" value="richard" checked>
+                  <span class="mode-card">
+                    <span class="mode-icon">⚡</span>
+                    <span class="mode-name">Richard</span>
+                    <span class="mode-desc">Balanced</span>
+                  </span>
                 </label>
-                <label class="task-chip-check">
-                  <input type="checkbox" id="task-player" checked>
-                  <span>🎬 3. In-Stream RAM Preview</span>
-                </label>
-                <label class="task-chip-check">
-                  <input type="checkbox" id="task-export" checked>
-                  <span>🌐 4. Cloud & Web Portal Export</span>
+                <label class="mode-option">
+                  <input type="radio" name="compression-mode" value="gilfoyle">
+                  <span class="mode-card">
+                    <span class="mode-icon">🔥</span>
+                    <span class="mode-name">Gilfoyle</span>
+                    <span class="mode-desc">Max Compress</span>
+                  </span>
                 </label>
               </div>
+            </div>
+
+            <!-- Compression Queue -->
+            <div id="compression-queue" class="compression-queue hidden margin-top">
+              <div class="queue-header">
+                <span class="label-sm">📋 Compression Queue</span>
+                <span id="queue-count" class="badge">0 files</span>
+              </div>
+              <div id="queue-items" class="queue-items"></div>
             </div>
 
             <!-- Stream Chunk Progress Bar -->
@@ -296,15 +249,38 @@
         <!-- Post-Compression Folder Tree & PC Export Workspace -->
         <div class="glass-card">
           <div class="card-header">
-            <h3><span class="card-icon">📁</span> Directory Tree & Export Workspace</h3>
-            <span id="player-status-badge" class="badge">Lossless Engine</span>
+            <h3><span class="card-icon">📁</span> Output & Preview Workspace</h3>
+            <span id="player-status-badge" class="badge">Middle-Out™</span>
           </div>
           <div class="card-body">
             
             <!-- AI Task Processing Output Log -->
+            <!-- Before/After Comparison Panel -->
+            <div id="comparison-panel" class="comparison-panel hidden">
+              <div class="comparison-header"><h4>📊 Before / After</h4></div>
+              <div class="comparison-grid">
+                <div class="comparison-side">
+                  <span class="comparison-label">ORIGINAL</span>
+                  <div id="comparison-original-preview" class="comparison-preview"></div>
+                  <div class="comparison-meta"><span id="comp-orig-size">—</span> <span id="comp-orig-format" class="badge">—</span></div>
+                </div>
+                <div class="comparison-divider">
+                  <span class="comparison-arrow">→</span>
+                  <span id="comp-weissman" class="comparison-weissman">W: —</span>
+                  <span id="comp-savings" class="comparison-savings">—</span>
+                </div>
+                <div class="comparison-side">
+                  <span class="comparison-label accent-green">COMPRESSED</span>
+                  <div id="comparison-compressed-preview" class="comparison-preview"></div>
+                  <div class="comparison-meta"><span id="comp-new-size" class="accent-green">—</span> <span id="comp-new-format" class="badge">—</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results Summary -->
             <div id="ai-task-results-box" class="ai-task-results hidden">
               <div class="result-header">
-                <strong>Pipeline Results Summary:</strong>
+                <strong>Middle-Out™ Results:</strong>
               </div>
               <pre id="ai-summary-text" class="result-text"></pre>
             </div>
@@ -337,15 +313,19 @@
                 <span id="arch-savings" class="badge badge-success">Saved 68.2%</span>
               </div>
               <div class="export-btn-group">
-                <select id="sel-download-format" class="select-mini">
-                  <option value="original">⚡ Original Direct Format (.mp4, .png, .jpg, .json)</option>
-                  <option value="zip">Standard PC Zip (.zip)</option>
-                  <option value="pp">PiedPiper Native (.pp)</option>
-                  <option value="targz">Compressed Tarball (.tar.gz)</option>
-                </select>
                 <button id="btn-download-pp" class="btn-primary btn-mini">⬇️ Download Compressed File</button>
-                <button id="btn-export-website" class="btn-secondary btn-mini">🌐 Export Link</button>
+                <button id="btn-export-website" class="btn-secondary btn-mini">🌐 Open in New Tab</button>
               </div>
+            </div>
+
+            <!-- Session History -->
+            <div id="session-history" class="session-history hidden margin-top">
+              <div class="history-header">
+                <span class="label-sm">📊 Session History</span>
+                <button id="btn-clear-history" class="btn-mini btn-danger">Clear</button>
+              </div>
+              <div id="history-items" class="history-items"></div>
+              <div id="history-totals" class="history-totals"></div>
             </div>
 
           </div>
@@ -453,8 +433,8 @@
     <!-- TAB 3: PIPERNET DEPIN DISTRIBUTED NETWORK -->
     <section id="tab-depin" class="tab-content">
       <div class="section-header">
-        <h2>PipedPiper <span class="gradient-text">Distributed Node Network</span></h2>
-        <p>P2P node visualizer. Monitor active seed nodes, storage pools, GPU compute clusters, and latency in real-time.</p>
+        <h2>PiperNet <span class="gradient-text">— The New Internet</span></h2>
+        <p>Decentralized P2P node network. Monitor active seed nodes, storage pools, and GPU compute clusters. <em>"We can put Hooli out of business."</em></p>
       </div>
 
       <div class="grid-layout-depin">
@@ -719,10 +699,10 @@
   <!-- Footer -->
   <footer class="main-footer">
     <div class="footer-container">
-      <p>© 2026 PiedPiper Pro. All rights reserved. Created by Hamza.</p>
+      <p>© 2026 Pied Piper. Built by <a href="https://github.com/Hamza35779" target="_blank" style="color:var(--accent-green);">Hamza</a>. <em>"I know what binary is. Not every human being knows."</em> — Jian-Yang</p>
       <div class="footer-links">
         <a href="https://github.com/Hamza35779/Pied-Piper" target="_blank">GitHub Repository</a>
-        <a href="https://github.com/Hamza35779" target="_blank">Developer Profile</a>
+        <a href="https://github.com/Hamza35779" target="_blank">@Hamza35779</a>
       </div>
     </div>
   </footer>

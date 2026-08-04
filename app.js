@@ -297,3 +297,31 @@ if (document.readyState === 'loading') {
 } else {
   initPiedPiperApp();
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey) {
+    if (e.key.toLowerCase() === 'o') {
+      e.preventDefault();
+      const btn = document.getElementById('direct-file-input');
+      if (btn) btn.click();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const btn = document.getElementById('btn-send-chat-task');
+      if (btn) btn.click();
+    } else if (e.key.toLowerCase() === 'd' && !e.shiftKey) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-download-pp');
+      if (btn) btn.click();
+    } else if (e.key.toLowerCase() === 'd' && e.shiftKey) {
+      e.preventDefault();
+      if (typeof window.toggleTheme === 'function') window.toggleTheme();
+    } else if (['1', '2', '3', '4', '5', '6', '7'].includes(e.key)) {
+      e.preventDefault();
+      const tabs = ['tab-studio', 'tab-middle-out', 'tab-depin', 'tab-weissman', 'tab-sdk', 'tab-team', 'tab-terminal'];
+      const index = parseInt(e.key) - 1;
+      if (tabs[index] && typeof window.switchTab === 'function') {
+        window.switchTab(tabs[index]);
+      }
+    }
+  }
+});

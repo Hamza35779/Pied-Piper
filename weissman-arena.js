@@ -13,35 +13,35 @@ class WeissmanArena {
     switch (payloadType) {
       case 'code':
         return [
-          { name: 'Pied Piper Middle-Out AI', ratio: 5.2, timeMs: 12, weissman: 5.28, color: '#00E676' },
-          { name: 'Hooli Nucleus 2.0', ratio: 2.1, timeMs: 85, weissman: 1.42, color: '#FF1744' },
-          { name: 'Brotli (Level 11)', ratio: 3.1, timeMs: 42, weissman: 2.10, color: '#00B0FF' },
-          { name: 'Zstandard (v1.5)', ratio: 2.8, timeMs: 18, weissman: 2.45, color: '#7C4DFF' },
+          { name: 'Pied Piper (Middle-Out™)', ratio: 5.2, timeMs: 12, weissman: 5.28, color: '#00E676' },
+          { name: 'Hooli Nucleus', ratio: 2.1, timeMs: 85, weissman: 1.42, color: '#FF1744' },
+          { name: 'EndFrame', ratio: 3.1, timeMs: 42, weissman: 2.10, color: '#00B0FF' },
+          { name: 'Aviato Compress', ratio: 2.8, timeMs: 18, weissman: 2.45, color: '#7C4DFF' },
           { name: 'Gzip (Baseline)', ratio: 2.0, timeMs: 25, weissman: 1.00, color: '#94A3B8' }
         ];
       case 'json':
         return [
-          { name: 'Pied Piper Middle-Out AI', ratio: 7.8, timeMs: 15, weissman: 6.12, color: '#00E676' },
-          { name: 'Hooli Nucleus 2.0', ratio: 2.4, timeMs: 120, weissman: 1.15, color: '#FF1744' },
-          { name: 'Brotli (Level 11)', ratio: 4.2, timeMs: 55, weissman: 2.35, color: '#00B0FF' },
-          { name: 'Zstandard (v1.5)', ratio: 3.9, timeMs: 22, weissman: 2.80, color: '#7C4DFF' },
+          { name: 'Pied Piper (Middle-Out™)', ratio: 7.8, timeMs: 15, weissman: 6.12, color: '#00E676' },
+          { name: 'Hooli Nucleus', ratio: 2.4, timeMs: 120, weissman: 1.15, color: '#FF1744' },
+          { name: 'EndFrame', ratio: 4.2, timeMs: 55, weissman: 2.35, color: '#00B0FF' },
+          { name: 'Aviato Compress', ratio: 3.9, timeMs: 22, weissman: 2.80, color: '#7C4DFF' },
           { name: 'Gzip (Baseline)', ratio: 2.0, timeMs: 25, weissman: 1.00, color: '#94A3B8' }
         ];
       case 'media':
         return [
-          { name: 'Pied Piper Middle-Out AI', ratio: 4.9, timeMs: 28, weissman: 5.04, color: '#00E676' },
-          { name: 'Hooli Nucleus 2.0', ratio: 1.8, timeMs: 190, weissman: 0.85, color: '#FF1744' },
-          { name: 'Brotli (Level 11)', ratio: 2.4, timeMs: 95, weissman: 1.60, color: '#00B0FF' },
-          { name: 'Zstandard (v1.5)', ratio: 2.6, timeMs: 34, weissman: 2.15, color: '#7C4DFF' },
+          { name: 'Pied Piper (Middle-Out™)', ratio: 4.9, timeMs: 28, weissman: 5.04, color: '#00E676' },
+          { name: 'Hooli Nucleus', ratio: 1.8, timeMs: 190, weissman: 0.85, color: '#FF1744' },
+          { name: 'EndFrame', ratio: 2.4, timeMs: 95, weissman: 1.60, color: '#00B0FF' },
+          { name: 'Aviato Compress', ratio: 2.6, timeMs: 34, weissman: 2.15, color: '#7C4DFF' },
           { name: 'Gzip (Baseline)', ratio: 2.0, timeMs: 25, weissman: 1.00, color: '#94A3B8' }
         ];
       case 'hooli':
       default:
         return [
-          { name: 'Pied Piper Middle-Out AI', ratio: 9.4, timeMs: 10, weissman: 8.95, color: '#00E676' },
-          { name: 'Hooli Nucleus 2.0', ratio: 1.2, timeMs: 450, weissman: 0.32, color: '#FF1744' },
-          { name: 'Brotli (Level 11)', ratio: 3.5, timeMs: 60, weissman: 1.95, color: '#00B0FF' },
-          { name: 'Zstandard (v1.5)', ratio: 3.1, timeMs: 20, weissman: 2.30, color: '#7C4DFF' },
+          { name: 'Pied Piper (Middle-Out™)', ratio: 9.4, timeMs: 10, weissman: 8.95, color: '#00E676' },
+          { name: 'Hooli Nucleus', ratio: 1.2, timeMs: 450, weissman: 0.32, color: '#FF1744' },
+          { name: 'EndFrame', ratio: 3.5, timeMs: 60, weissman: 1.95, color: '#00B0FF' },
+          { name: 'Aviato Compress', ratio: 3.1, timeMs: 20, weissman: 2.30, color: '#7C4DFF' },
           { name: 'Gzip (Baseline)', ratio: 2.0, timeMs: 25, weissman: 1.00, color: '#94A3B8' }
         ];
     }

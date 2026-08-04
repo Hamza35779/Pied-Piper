@@ -5,10 +5,10 @@
 class PiedPiperTerminal {
   constructor() {
     this.history = [];
-    this.historyIndex = -1;
     this.commandsList = [
       'help', 'goto', 'theme', 'compress', 'sample', 'process', 'tree',
-      'hash', 'benchmark', 'nodes', 'status', 'sysinfo', 'history', 'clear'
+      'hash', 'benchmark', 'nodes', 'status', 'sysinfo', 'history', 'clear',
+      'hotdog', 'tabs', 'russ', 'jian-yang', 'jin-yang', 'erlich', 'delete', 'aviato'
     ];
   }
 
@@ -225,6 +225,61 @@ class PiedPiperTerminal {
         this.history.forEach((h, idx) => {
           this.printLine(`  ${idx + 1}. ${h}`);
         });
+        break;
+
+      case 'hotdog':
+        this.printLine(`🌭 JIAN-YANG'S HOTDOG CLASSIFIER v1.0`, 'accent-yellow');
+        this.printLine(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+        this.printLine(`"See food? Hot dog. Not see food? Not hot dog."`);
+        this.printLine(`Classifying current session data...`);
+        this.printLine(`Result: 🌭 HOTDOG (98.7% confidence)`, 'accent-green');
+        this.printLine(`"Erlich, is your refrigerator running? This is Mike Hunt."`);
+        break;
+
+      case 'tabs':
+        this.printLine(`"Tabs. Obviously. Spaces are what Hooli developers use."`);
+        this.printLine(`— Richard Hendricks, settling the eternal debate`);
+        break;
+
+      case 'russ':
+        this.printLine(`🤙 "This guy fucks!" — Russ Hanneman, Tres Commas Club`);
+        this.printLine(`💰 Current net worth: $986,000,000 (NOT a billionaire)`);
+        this.printLine(`🚗 Car doors: ←→ (They go like THIS, not like this)`);
+        break;
+
+      case 'jian-yang':
+      case 'jin-yang':
+        this.printLine(`🍳 JIAN-YANG ENTERPRISES`);
+        this.printLine(`• SeeFood App: "It's a hot dog."`);
+        this.printLine(`• Erlich's Palapa: ACQUIRED`);
+        this.printLine(`• New Pied Piper: "It's a-my-a Pied Piper"`);
+        this.printLine(`"Erlich Bachman, this is you as old man. I'm ugly and I'm dead. Alone."`);
+        break;
+
+      case 'erlich':
+        this.printLine(`🎭 ERLICH BACHMAN — AVIATO FOUNDER`);
+        this.printLine(`"I've been known to fuck myself."`);
+        this.printLine(`"You just brought piss to a shit fight."`);
+        this.printLine(`Status: Last seen in Tibet. Presumed enlightened.`);
+        break;
+
+      case 'delete':
+        if (args === 'hooli') {
+          this.printLine(`💀 INITIATING HOOLI SERVER PURGE...`, 'accent-red');
+          this.printLine(`[████████████████████] 100%`);
+          this.printLine(`All Hooli Nucleus data centers: WIPED`);
+          this.printLine(`Gavin Belson has been notified.`);
+          this.printLine(`"Consider the elephant..." — Gavin Belson's last words`);
+        } else {
+          this.printLine(`Command not recognized: 'delete ${args}'. Type '<strong class="accent-yellow">help</strong>' for available CLI commands.`, 'accent-red');
+        }
+        break;
+
+      case 'aviato':
+        this.printLine(`✈️ AVIATO — The Social Network for Planes`);
+        this.printLine(`Founded by: Erlich Bachman`);
+        this.printLine(`Status: ACQUIRED (and shut down)`);
+        this.printLine(`"My Aviato? You mean Aviato? Yes, MY Aviato."`);
         break;
 
       case 'clear':
